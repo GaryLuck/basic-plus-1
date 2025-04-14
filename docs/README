@@ -1,0 +1,280 @@
+
+This software implements a subset of BASIC-PLUS, per the DEC manual
+included in the docs directory, with the following caveats:
+
+The floating point in this implementation is 64-bit double precision
+IEEE floating point.  This has ramifications wrt how many digits of
+precision are printed.  The manual says 6, but 64 bits allows us to fill
+an entire output zone.  For example: "0.33333333333".
+
+The later versions of BASIC-PLUS allowed the administrator to sysgen
+with long variable names (up to 29 characters).  This implementation
+supports that.  An unavoidable consequence of this, is that the parser
+cannot be free format, requiring whitespace in some cases, as otherwise,
+it is possible to construct a program statement that cannot be
+unambiguously parsed.  For example:  "FORK=ATOB".  Is this
+"FOR K = A TO B" (a loop) or "FORK = ATOB" (an assignment statement?)
+Variables must start with a letter, and subsequent characters can be
+letters, digits or a period.
+For details: https://en.wikipedia.org/wiki/BASIC-PLUS.
+
+The original BASIC-PLUS was implemented for hardware terminals and
+line printers, where there was no concept of lower-case.  Upper case
+only is considered ugly nowadays, so this implementation is not case
+sensitive, except for quoted character strings.  Also, due to space
+limitations on the various DEC platforms, RADIX-50 implemented a
+smaller character set to allow squeezing more characters into a word
+(depending on the platform).  This makes no sense nowadays, so that
+isn't implemented.  Nor is anything other than vanilla ASCII.
+
+The original BASIC-PLUS mixed-mode arithmetic rules don't make any
+sense.  It's an integer expression IFF the left side of a binary
+operator is integer, and the right side is not explictly floating
+point.  e.g. '1% + 1' is an integer expression, but '1 + 1%' is not?
+Even worse, the '1' in the first example is technically a floating
+point number (which is true of every other BASIC implementation I am
+aware of), but there is no semantic difference between '1% + 1' and
+'1% + 1.0'.  Aside from making things difficult for the parser and
+runtime code, the documentation does not describe the intended
+behavior if either operand is not a leaf node.  e.g. it talks about
+what happens if '1% + 2' is given, but not '3% / (x + 1)' The right
+hand side in the latter case can't be usefully categorized as an
+explicit float or not.  So, the only time I can see their distinction
+mattering is if we have something like 'x% + 1', in which case it *is*
+done in integer mode.  If you're going to do things like this, just write
+'x% + 1%' and remove any doubt.  As far as I can tell, there is no
+correctness issue here, just a miniscule performance hit in certain
+edge cases.
+
+The BASIC-PLUS manual is unclear about immediate mode commands.
+It specifically calls out certain commands (such as DEF and DIM)
+as not making sense in immediate mode, but the only ones that are
+listed explicitly are GOTO, GOSUB, user functions, DEF, DIM, DATA, FOR,
+RETURN, NEXT and FNEND.  I would argue that there are others that make
+no sense either, such as: END, RANDOMIZE, REM and STOP.  Rather than
+call out the statements that are NOT allowed, it seems to make more
+sense to call out those which are allowed in both modes, namely LET
+and PRINT.  I'm hard pressed to come up with others.
+
+The terminal interface to the BASIC-PLUS clone uses a GO package
+similar to https://github.com/antirez/linenoise.  Original plan was to
+use readline, via CGO, but this makes it (apparently) impossible to
+build a statically-linked basic-plus.  This allows a history and
+command line editing capability that would otherwise not be possible.
+
+Statements spanning multiple physical lines (using LF) is not
+supported.  It only ever made sense when using something like a
+teletype, with fixed length lines.  In the current environment
+(a windowed terminal emulator), it's pointless, and introduces
+yet more complexity to the parser.
+
+The documentation of INPUT is contradictory.  It says it allows you
+to enter multiple values, separated by comma, but then proceeds to say
+that the values are entered with the ENTER key.  Later (in Chapter 10),
+it says that you can have a prompt for each value, as in something
+like this: "100 input 'name'; name$, 'account'; account", but this
+makes it impossible to reconcile multiple string items in an INPUT
+statement, with multiple input items separated by commas.  Experiments
+with the RSTS-11 BASIC-PLUS (using the SIMH pdp11 emulator) seem to
+indicate that if you have a variable in the INPUT statement list preceded
+by a string prompt (such as 100 input "age"; age), the runtime code
+will only process a line at a time, and ignore anything it considers
+to be extraneous.  e.g. (100 input "age"; age; "account"; account)
+will prompt twice, reading numeric values for age and account.
+The same applies for string variables.  Docs also state that a
+semicolon separating a prompt from the input variable is optional.
+Yet another wart on the parser, so no thanks.  You want to use a
+prompt, use a semicolon or comma after it.
+
+A deliberate decision was made to not implement conditional clauses.
+A number of constructs are redundant, ex "let a = b / c unless c = 0",
+where "if c <> 0 then a = b / c" is semantically identical.  Any of
+the others, such as UNLESS, WHILE or UNTIL can be trivially simulated
+by the use of IF statements (possibly also GOTO).  Some of the
+possibilities are merely silly, such as 'GOTO 1000 unless x = 0'.  The
+worst are the FOR statement conditional clauses.  Implementing all of
+these correctly is a nightmare that wasn't worth it, although it was
+deemed useful to implement the WHILE and UNTIL modifiers in FOR statements
+(ex: for i = 1 while done = 0).
+
+The documented argument range for EXP is only valid for 32-bit
+floating point values.  Since we are using 64-bit floating point, the
+range will be considerably larger.  The empirically determined value
+is approximately -745:709.
+
+None of the virtual memory array functionality is present, since it was
+a hack to get around the 16-bit address limitations of the PDP-11;
+nor is any of the program chaining functionality.  It isn't really
+needed in this 64-bit clone anyway, as we (arbitrarily) limit the total
+amount of memory used by DIM statements to 1GB or so.
+
+The old, new and save commands are implemented with changes.  Old requires
+a filename (optional '.bas' suffix - if one is not given, the interpreter
+will add it.)  The new command may or may not be given a filename.  If not,
+it merely resets the interpreter to the initial state.  Giving the new
+command a filename sets the current filename, and resets as above.
+The save command may or may not be given a filename.  If not, there must
+already have been a current filename specified.  For example, you enter
+'new foo.bas', and then start adding statements, etc.  At any point after
+that, you can enter 'save', and the current program will be saved to
+that file.  Note that the manual verbiage about RSTS-11 devices and such
+are not relevant.  The file/pathnames provided are standard Linux filenames.
+
+Any builtin functions that refer to dates (date$ for one), are Y2K
+compliant.  Technically, this is incompatible, but strict compliance
+would make the software useless where dates are involved.  The date$
+function has been changed to accept a floating point value, allowing
+output dates well past 1970.  It also uses an algorithm more compatible
+with standard Linux usage (e.g. seconds since January 1, 1970 in 64-bit
+format).  The argument will be rejected if the resulting year is not
+representable as a 4-digit integer.
+
+The documentation states there is no inherent length limitation on string
+length, aside from 'available core' or some such.  There are places in
+the manual that do specifically call out 32767, so the 'available core'
+comments would seem to refer to the fact that you can have less RAM than
+a 32767 length string.  This also makes sense, as otherwise you could not
+reliably use integer variables/constants with string builtins.
+
+The runtime code for the INPUT statement doesn't accept '%' syntax for
+integer input items.  There is no reason to expect it to, as any type
+conversion is done when the item is assigned to the variable in question.
+
+The manual states that a literal string in a PRINT statement can be
+followed directly by a variable, and if so, will act as if the user
+typed a semicolon in between them.  This 'convenience' is not implemented,
+as it causes the interaction between the parser and the lexer to be a
+nightmare.  Not hard to type ';' is it?
+
+When the parser detects a syntax error, it will print the offending line,
+with the offending syntactic item printed in red text.
+
+If there are multiple statements on a line (separated by colons), when
+a statement number is printed due to an error or a STOP statement, the
+the documentation states that the statement number will be printed, but
+it's not necessarily obvious which statement was at fault.  We cope with
+this by printing the offending statement in red text either way.
+
+It's possible for a FOR loop to be effectively infinite, if one is using
+floating point, and the magnitude is large enough that adding one (or
+whatever the step value is) ends up being the same.  For that matter, it's
+less than useful to have a loop index that is (apparently) unchanged from
+one iteration to the next.  Given that, the FOR loop increment code uses
+the same functionality as the '==' (approximately equal) relational operator
+to detect 'infinite loops'.
+
+Nested IF statements are not implemented (e.g. something on the order of
+'if a = b then if c = d then ...'  This is functionally the same thing
+as 'if a = b and b = c then ...'
+
+Implemented a RENUMBER command.  e.g. 'renumber 100' will renumber the
+program starting at statement number 100, and incrementing by 100 for
+each subsequent statement.  Note that renumbering the current program
+will cause the program to be marked as 'modified'.
+
+Added a STATS command to print CPU and memory usage after a program
+terminates execution.
+
+Added a CONFIG command to print the current build configuration.
+
+Added a TRACE command that allows tracing statement execution (EXEC TRACE)
+and setting variables (TRACE VARS).  TRACE EXEC will print the line containing
+the traced statement, and the statement in question will be printed in inverse
+video if the line in question contains multiple statements.
+
+The PDF seems to indicate that both operands of the CHANGE statement
+must be simple variables, but it seems useful to allow the source
+operand to be a string literal.  As in '100 change "hello there" to xxx'.
+
+DATA string item doesn't require quotes unless the item contains
+commas and/or quotes of either type (this may not be possible
+without major parser/lexer changes, so we don't support that.)
+
+BASIC-PLUS manual also states PRINT USING can end with a semicolon
+in which case line is NOT terminated with newline.  That makes little
+sense, since PRINT USING is intended to print a perfectly formatted
+line, so leaving the output at the mercy of the next PRINT statement
+strikes me as silly.
+
+DEC implementation allows silly things like "print using 'hello'",
+which is the same as "print 'hello'".  A nuisance to handle, so we
+don't allow this.
+
+A very weird 'optimization' in BASIC-PLUS: if you set a string variable
+to something and then set another string variable to the first one,
+they will share the same storage, and they recommend an ugly hack like
+appending the null string to the second assignment to avoid this.
+This is gross and disgusting, not to mention unintuitive, and I can't
+imagine anyone relying on this behavior, so this is not implemented
+as documented.  I can only guess that this was due to some system
+softare implementation.
+
+PRINT USING change: exponential format is documented as being four caret
+characters following the numeric field like '###^^^^'.  This is not correct
+for 64-bit floating point, where the exponent can be 3 digits.  To avoid
+breaking working programs, we allow 4 but still output 5 characters for
+the exponent (like 'e-222').
+
+Added support for disallowing denormalized floating point values.  They
+are disabled by default and the operating mode is toggled by the 'denorm'
+BASIC-PLUS command.
+
+This implementation automatically sizes the number of 14-character
+zones per session.  A typical 80 character window will therefore
+provide the canonical 5 zones.
+
+Added a RELOAD command, which will re-execute the current interpreter's
+pathname.  If a user program exists, it will be loaded as well.
+This is only really useful if one needs to update the interpreter executable
+without quitting and restarting, so not likely to be frequently used.
+
+The COMPILE command is not implemented, since our parser generates an
+AST (Abstract Syntax Table) when a statement is entered.
+
+For the POS builtin, the numeric file descriptor is ignored.
+
+The OPEN statement will refuse to open a BASIC-PLUS source file for
+output, to avoid inadvertantly destroying a user program.
+
+The formatted PRINT/INPUT functionality in DEC's implementation seems
+to be very broken.  If you print multiple numbers on the same output
+line (ex: "print 1, 2, 3", as expected on a terminal you would see:
+"1    2   3" or somesuch.  The problem is that the input code doesn't
+handle this correctly.  It ignores the whitespace and parses the line
+as the single number 123, but the documented requirement for input of
+multiple numbers stipulates they must be separated by commas!  Trying
+to reproduce this broken behavior makes no sense, and the only sane
+alternative I can think of is to write each output item on its own line,
+and have the input code path work like it does for terminal input, which
+is to read a line at a time to satisfy each input item.  Nowhere in the
+documentation does it allude to this.  A 'one item per line' policy
+implies ignoring trailing comma or semicolon. What is really crazy
+about this?  DEC's implementation is such that a file line written
+by 'print #1, 1, 2, 3' cannot be read by 'input #1, a, b, c' since
+the line '1    2   3' is considered one token!  I suppose you could
+explicitly print commas between the numbers, but that is grotesque
+and not documented anywhere!
+
+Another inconsistency: if the INPUT statement specifies more items than
+are on the line read from the terminal, the user is reprompted and input
+continues.  Totally reasonable.  Except formatted file input does NOT
+behave that way.  If you say 'input #1, a, b' but the line in the file
+contains only '123', an error 'Not enough data in record at line XXX'
+is printed.  Since I intend to use one item per file line, this is not
+an issue - just descriptive of yet another flaky thing.
+
+Record I/O: CLUSTERSIZE and RECORDSIZE are valid options,but we ignore
+them, since they are performance knobs relevant only if you're actually
+using RSTS-11.
+
+Record I/O: We ignore the MODE option to OPEN, and UNLOCK is not
+implemented, since this is intended to be a single-user application.
+
+An unavoidable wart: There is no obvious way to tell if a file is
+formatted or record type.  I assume the RSTS-11 filesystem would
+have indicated this (or maybe not!)  It seems awful to not have any
+idea and do a PRINT instead of PUT (or vice-versa) and corrupt your
+data file, no?  Since this implementation runs on modern Linux code,
+we use the otherwise obsolete sticky bit ('T') to indicate a record
+mode file.
+
