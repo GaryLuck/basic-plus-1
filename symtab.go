@@ -83,22 +83,22 @@ func generateVarToken(token any) any {
 			unexpectedTokenError(tnode.token)
 
 		case FNFVAR:
-			token = fnfvarToken{name: tnode.tokenData.(string)}
+			token = fnfvarToken(tnode.tokenData.(string))
 
 		case FNIVAR:
-			token = fnivarToken{name: tnode.tokenData.(string)}
+			token = fnivarToken(tnode.tokenData.(string))
 
 		case FNSVAR:
-			token = fnsvarToken{name: tnode.tokenData.(string)}
+			token = fnsvarToken(tnode.tokenData.(string))
 
 		case FVAR:
-			token = fvarToken{name: tnode.tokenData.(string)}
+			token = fvarToken(tnode.tokenData.(string))
 
 		case IVAR:
-			token = ivarToken{name: tnode.tokenData.(string)}
+			token = ivarToken(tnode.tokenData.(string))
 
 		case SVAR:
-			token = svarToken{name: tnode.tokenData.(string)}
+			token = svarToken(tnode.tokenData.(string))
 		}
 	}
 
@@ -315,7 +315,7 @@ func storeFloatVar(sym *symtabNode, val float64, subs ...int16) {
 
 	sub1, sub2 := computeSubs(sym, subs)
 
-	traceVar(sym.name, sub1, sub2, val)
+	traceVar(sym.name, sub1, sub2, sym.value.f[sub1][sub2], val)
 
 	sym.value.f[sub1][sub2] = val
 }
@@ -324,7 +324,7 @@ func storeIntVar(sym *symtabNode, val int16, subs ...int16) {
 
 	sub1, sub2 := computeSubs(sym, subs)
 
-	traceVar(sym.name, sub1, sub2, val)
+	traceVar(sym.name, sub1, sub2, sym.value.i[sub1][sub2], val)
 
 	sym.value.i[sub1][sub2] = val
 }
@@ -343,16 +343,16 @@ func storeStringVar(sym *symtabNode, val string, priv bool, subs ...int16) {
 
 	sub1, sub2 := computeSubs(sym, subs)
 
-	traceVar(sym.name, sub1, sub2, val)
+	traceVar(sym.name, sub1, sub2, sym.value.s[sub1][sub2], val)
 
 	sym.value.s[sub1][sub2] = val
 }
 
-func traceVar(name string, sub1, sub2 int16, val any) {
-
-	fmtStr := " set to "
+func traceVar(name string, sub1, sub2 int16, oval, nval any) {
 
 	if g.traceVars || tracedVarsMap[name] {
+		fmtStr := " changed from "
+
 		fmt.Printf("Variable %s", name)
 
 		if sub1 == 0 {
@@ -364,12 +364,14 @@ func traceVar(name string, sub1, sub2 int16, val any) {
 		}
 
 		if strings.HasSuffix(name, "$") {
-			fmtStr += "%q\n"
+			fmtStr += "%q to %q"
 		} else if strings.HasSuffix(name, "%") {
-			fmtStr += "%d\n"
+			fmtStr += "%d to %d"
 		} else {
-			fmtStr += "%g\n"
+			fmtStr += "%g to %g"
 		}
-		fmt.Printf(fmtStr, val)
+
+		fmt.Printf(fmtStr, oval, nval)
+		fmt.Println()
 	}
 }

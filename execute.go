@@ -36,6 +36,7 @@ func executeClose(args []*tokenNode) {
 }
 
 func executeCont() {
+
 	var nextStmt *stmtNode
 
 	if r.curStmt != nil && r.nextStmt != nil {
@@ -649,8 +650,8 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 	// Walk the token list, pushing, popping and operating as required
 	//
 
-	for idx = 0; idx < len(state.expr.list); {
-		item := state.expr.list[idx]
+	for idx = 0; idx < len(state.expr); {
+		item := state.expr[idx]
 		idx++
 
 		switch item.(type) {
@@ -1104,7 +1105,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				// the 'dims' for the LHS to use at the end
 				//
 
-				if !lhs || idx < len(state.expr.list)-1 {
+				if !lhs || idx < len(state.expr)-1 {
 					sym := rpnPop(stackp) // the symbol ref
 					rval := lookupSymbolValue(sym, dims...)
 					rpnPush(stackp, rval)
@@ -1390,7 +1391,7 @@ func executeStmtInternal(state *procState, arg any) (*procState, any) {
 
 	switch curStmt.token {
 	default:
-		fatalError("Unexpected stmt %s", getTokenName(curStmt.token))
+		unexpectedTokenError(curStmt.token)
 
 	case CHANGE:
 		executeChange(curStmt)
@@ -1415,9 +1416,10 @@ func executeStmtInternal(state *procState, arg any) (*procState, any) {
 	//
 	// If we see a DEF, skip over everything up to and including
 	// the matching FNEND.  We don't actually skip the FNEND
-	// statement itself, as the call to computeNextStmt() will do that
-	// None of this is germane for a single-line function, as normal
-	// execution will skip it
+	// statement itself, as the call to computeNextStmt() at the end of
+	// this function will do that as a side-effect of normal execution.
+	// None of this is germane for a single-line function, as the same
+	// call will skip it
 	//
 
 	case DEF:
@@ -1434,7 +1436,6 @@ func executeStmtInternal(state *procState, arg any) (*procState, any) {
 		executeField(curStmt.operands)
 
 	case FNEND:
-
 		return createExecutionState(nil), nil
 
 		//
@@ -1814,10 +1815,10 @@ func executeRandomize() {
 // well if STOP is used after THEN or ELSE, since the contract with
 // executeIf states that executeIf will return nil unless the verb
 // after THEN or ELSE transfer control.  It's seriously ugly to try to
-// band-aid around that.  What we do instead is call panic with a pointer
-// to a special structure type.  The fault handler in basic.go will special
-// case this and return.  We need to explicitly set r.nextStmt here in case
-// the user enters the CONT command
+// band-aid around that.  What we do instead is call exitToPrompt.
+// We need to explicitly set r.nextStmt here in case the user enters
+// the CONT command.  This only works because STOP must be the only
+// statement on a line
 //
 
 func executeStop() {
@@ -2978,7 +2979,7 @@ func fetchForTerminationToken(tnode *tokenNode) int {
 
 	tokenList := tnode.tokenData.(tokenList)
 
-	token := tokenList.list[len(tokenList.list)-1]
+	token := tokenList[len(tokenList)-1]
 	switch token.(type) {
 	default:
 		fatalError("Unexpected type %T\n", token)
@@ -3038,7 +3039,7 @@ func getLoopVar(stmt *stmtNode) string {
 
 	op0 := stmt.operands[0]
 
-	tl0 := op0.tokenData.(tokenList).list[0]
+	tl0 := op0.tokenData.(tokenList)[0]
 
 	switch tl0.(type) {
 	default:

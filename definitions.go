@@ -18,7 +18,7 @@ const myMaxFNum = 9007199254740992.0
 
 const badDateMsg = "Invalid input to DATE$"
 
-const VERSION = "1.1.0"
+const VERSION = "1.1.2"
 
 const basFileSuffix = ".bas"
 
@@ -153,33 +153,19 @@ type Lexer struct {
 	line   string
 }
 
-type fnfvarToken struct {
-	name string
-}
+type fnfvarToken string
 
-type fnivarToken struct {
-	name string
-}
+type fnivarToken string
 
-type fnsvarToken struct {
-	name string
-}
+type fnsvarToken string
 
-type fvarToken struct {
-	name string
-}
+type fvarToken string
 
-type ivarToken struct {
-	name string
-}
+type ivarToken string
 
-type svarToken struct {
-	name string
-}
+type svarToken string
 
-type tokenList struct {
-	list []any
-}
+type tokenList []any
 
 type rpnStack struct {
 	entries []any

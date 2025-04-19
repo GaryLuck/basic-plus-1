@@ -1167,7 +1167,7 @@ func checkModified() {
 
 	if g.modified {
 		if !promptYesNo("Discard modified program") {
-			runtimeError("Please save the current program first")
+			exitToPrompt("Please save the current program first")
 		}
 	}
 }
@@ -1480,10 +1480,10 @@ func appendTokenList(tla, tlb tokenList) tokenList {
 
 	var ret tokenList
 
-	if tla.list == nil {
+	if tla == nil {
 		ret = tlb
 	} else {
-		ret.list = append(tla.list, tlb.list...)
+		ret = append(tla, tlb...)
 	}
 
 	return ret
@@ -1508,42 +1508,42 @@ func createRpnExprInternal(tnode *tokenNode) tokenList {
 
 	switch tnode.token {
 	default:
-		tl.list = append(tl.list, tnode.token)
+		tl = append(tl, tnode.token)
 
 	case SUBSCR:
-		lidx := len(tl.list) - 1
-		if tl.list[lidx] == INTPAIR {
-			tl.list[lidx] = SUBSCR2
+		lidx := len(tl) - 1
+		if tl[lidx] == INTPAIR {
+			tl[lidx] = SUBSCR2
 		} else {
-			tl.list = append(tl.list, SUBSCR1)
+			tl = append(tl, SUBSCR1)
 		}
 
 	case FNFVAR:
-		tl.list = append(tl.list, fnfvarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, fnfvarToken(tnode.tokenData.(string)))
 
 	case FNIVAR:
-		tl.list = append(tl.list, fnivarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, fnivarToken(tnode.tokenData.(string)))
 
 	case FNSVAR:
-		tl.list = append(tl.list, fnsvarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, fnsvarToken(tnode.tokenData.(string)))
 
 	case FVAR:
-		tl.list = append(tl.list, fvarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, fvarToken(tnode.tokenData.(string)))
 
 	case IVAR:
-		tl.list = append(tl.list, ivarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, ivarToken(tnode.tokenData.(string)))
 
 	case SVAR:
-		tl.list = append(tl.list, svarToken{name: tnode.tokenData.(string)})
+		tl = append(tl, svarToken(tnode.tokenData.(string)))
 
 	case FLOAT:
-		tl.list = append(tl.list, tnode.tokenData.(float64))
+		tl = append(tl, tnode.tokenData.(float64))
 
 	case INTEGER:
-		tl.list = append(tl.list, tnode.tokenData.(int16))
+		tl = append(tl, tnode.tokenData.(int16))
 
 	case STRING:
-		tl.list = append(tl.list, tnode.tokenData.(string))
+		tl = append(tl, tnode.tokenData.(string))
 
 	case NRPN, SRPN:
 		unexpectedTokenError(tnode.token)
@@ -2024,22 +2024,22 @@ func getVarName(arg any) string {
 		return ""
 
 	case fvarToken:
-		return arg.(fvarToken).name
+		return string(arg.(fvarToken))
 
 	case ivarToken:
-		return arg.(ivarToken).name
+		return string(arg.(ivarToken))
 
 	case svarToken:
-		return arg.(svarToken).name
+		return string(arg.(svarToken))
 
 	case fnfvarToken:
-		return arg.(fnfvarToken).name
+		return string(arg.(fnfvarToken))
 
 	case fnivarToken:
-		return arg.(fnivarToken).name
+		return string(arg.(fnivarToken))
 
 	case fnsvarToken:
-		return arg.(fnsvarToken).name
+		return string(arg.(fnsvarToken))
 
 	case *tokenNode:
 		node := arg.(*tokenNode)
@@ -2112,33 +2112,19 @@ func callFunction(fn any, args rpnStack) any {
 		unexpectedTypeError(fn)
 
 	case fnfvarToken:
-		fname = fn.(fnfvarToken).name
+		fname = string(fn.(fnfvarToken))
 		rpnToken = NRPN
 
 	case fnivarToken:
-		fname = fn.(fnivarToken).name
+		fname = string(fn.(fnivarToken))
 		rpnToken = NRPN
 
 	case fnsvarToken:
-		fname = fn.(fnsvarToken).name
+		fname = string(fn.(fnsvarToken))
 		rpnToken = SRPN
 	}
 
 	r.level++
-
-	switch fn.(type) {
-	default:
-		unexpectedTypeError(fn)
-
-	case fnfvarToken:
-		fname = fn.(fnfvarToken).name
-
-	case fnivarToken:
-		fname = fn.(fnivarToken).name
-
-	case fnsvarToken:
-		fname = fn.(fnsvarToken).name
-	}
 
 	defStmt := r.userDefMap[fname]
 
@@ -2188,12 +2174,12 @@ func callFunction(fn any, args rpnStack) any {
 		// have been made by the parser
 		//
 
-		for jx := 0; jx < len(newTl.list); jx++ {
-			varName := getVarName(newTl.list[jx])
+		for jx := 0; jx < len(newTl); jx++ {
+			varName := getVarName(newTl[jx])
 
 			for ix := 0; ix < defNargs; ix++ {
 				if varName == params.paramNames[ix] {
-					newTl.list[jx] = args.entries[ix]
+					newTl[jx] = args.entries[ix]
 					break
 				}
 			}
@@ -2258,8 +2244,8 @@ func callFunction(fn any, args rpnStack) any {
 func copyTokenList(oldTl tokenList) tokenList {
 
 	newTl := tokenList{}
-	newTl.list = make([]any, len(oldTl.list))
-	copy(newTl.list, oldTl.list)
+	newTl = make([]any, len(oldTl))
+	copy(newTl, oldTl)
 
 	return newTl
 }

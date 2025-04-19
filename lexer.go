@@ -745,6 +745,8 @@ func getLexeme(s *scanner.Scanner) (Lval, bool) {
 	// Generate the token location information
 	//
 
+	t.lval.symLoc = getTokenLoc(s)
+
 	return t, false
 }
 

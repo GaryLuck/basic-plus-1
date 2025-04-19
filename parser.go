@@ -401,7 +401,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line parser.y:2699
+//line parser.y:2710
 
 //line yacctab:1
 var yyExca = [...]int{
@@ -1441,6 +1441,8 @@ yydefault:
 						errorLoc("FNEND must be the only statement on this line")
 					} else if sp.token == REM {
 						errorLoc("REM must be the only statement on this line")
+					} else if sp.token == STOP {
+						errorLoc("STOP must be the only statement on this line")
 					}
 				}
 			}
@@ -1475,13 +1477,13 @@ yydefault:
 		}
 	case 6:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:421
+//line parser.y:423
 		{
 			return 1
 		}
 	case 7:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:427
+//line parser.y:429
 		{
 			sp1 := yyDollar[1].snodeVal
 			spn := yyDollar[3].snodeVal
@@ -1496,7 +1498,7 @@ yydefault:
 		}
 	case 8:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:441
+//line parser.y:443
 		{
 			sp := yyDollar[1].snodeVal
 			sp.tokenLoc = yyDollar[1].symLoc
@@ -1505,85 +1507,85 @@ yydefault:
 		}
 	case 9:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:450
+//line parser.y:452
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 10:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:455
+//line parser.y:457
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 11:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:461
+//line parser.y:463
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 12:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:466
+//line parser.y:468
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 13:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:472
+//line parser.y:474
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 14:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:477
+//line parser.y:479
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 15:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:483
+//line parser.y:485
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 16:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:488
+//line parser.y:490
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 17:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:494
+//line parser.y:496
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 18:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:499
+//line parser.y:501
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 19:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:505
+//line parser.y:507
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 20:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:510
+//line parser.y:512
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 21:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:515
+//line parser.y:517
 		{
 			errorLoc("Invalid variable!", &yyDollar[1].symLoc)
 		}
 	case 22:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:521
+//line parser.y:523
 		{
 			requireImmediateStatement(BYE, &yyDollar[1].symLoc)
 
@@ -1591,7 +1593,7 @@ yydefault:
 		}
 	case 23:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:528
+//line parser.y:530
 		{
 			requireDeferredStatement(CHANGE, &yyDollar[1].symLoc)
 
@@ -1599,7 +1601,7 @@ yydefault:
 		}
 	case 24:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:535
+//line parser.y:537
 		{
 			requireDeferredStatement(CHANGE, &yyDollar[1].symLoc)
 
@@ -1607,7 +1609,7 @@ yydefault:
 		}
 	case 25:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:542
+//line parser.y:544
 		{
 			requireDeferredStatement(CHANGE, &yyDollar[1].symLoc)
 
@@ -1615,7 +1617,7 @@ yydefault:
 		}
 	case 26:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:549
+//line parser.y:551
 		{
 			requireDeferredStatement(COMMENT, &yyDollar[1].symLoc)
 
@@ -1623,13 +1625,13 @@ yydefault:
 		}
 	case 27:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:557
+//line parser.y:559
 		{
 			yyVAL.snodeVal = yyDollar[1].snodeVal
 		}
 	case 28:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:562
+//line parser.y:564
 		{
 			requireImmediateStatement(CONT, &yyDollar[1].symLoc)
 
@@ -1637,7 +1639,7 @@ yydefault:
 		}
 	case 29:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:569
+//line parser.y:571
 		{
 			requireImmediateStatement(CONFIG, &yyDollar[1].symLoc)
 
@@ -1645,7 +1647,7 @@ yydefault:
 		}
 	case 30:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:576
+//line parser.y:578
 		{
 			tp2 := yyDollar[2].tnodeVal
 
@@ -1655,7 +1657,7 @@ yydefault:
 		}
 	case 31:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:585
+//line parser.y:587
 		{
 			tp2 := yyDollar[2].tnodeVal
 			tp3 := createTokenNodeSlice(yyDollar[3].tnodeVal)
@@ -1678,7 +1680,7 @@ yydefault:
 		}
 	case 32:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:607
+//line parser.y:609
 		{
 			requireDeferredStatement(DEF, &yyDollar[1].symLoc)
 
@@ -1712,7 +1714,7 @@ yydefault:
 		}
 	case 33:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:640
+//line parser.y:642
 		{
 			requireImmediateStatement(DELETE, &yyDollar[1].symLoc)
 
@@ -1720,7 +1722,7 @@ yydefault:
 		}
 	case 34:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:647
+//line parser.y:649
 		{
 			requireImmediateStatement(DELETE, &yyDollar[1].symLoc)
 
@@ -1728,7 +1730,7 @@ yydefault:
 		}
 	case 35:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:654
+//line parser.y:656
 		{
 			requireImmediateStatement(DENORM, &yyDollar[1].symLoc)
 
@@ -1736,7 +1738,7 @@ yydefault:
 		}
 	case 36:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:661
+//line parser.y:663
 		{
 			requireDeferredStatement(DIM, &yyDollar[1].symLoc)
 
@@ -1744,7 +1746,7 @@ yydefault:
 		}
 	case 37:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:668
+//line parser.y:670
 		{
 			requireDeferredStatement(END, &yyDollar[1].symLoc)
 
@@ -1761,7 +1763,7 @@ yydefault:
 		}
 	case 38:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:684
+//line parser.y:686
 		{
 			requireDeferredStatement(FIELD, &yyDollar[1].symLoc)
 
@@ -1773,7 +1775,7 @@ yydefault:
 		}
 	case 39:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:695
+//line parser.y:697
 		{
 			tp2 := yyDollar[2].tnodeVal
 			tp4 := yyDollar[4].tnodeVal
@@ -1792,7 +1794,7 @@ yydefault:
 		}
 	case 40:
 		yyDollar = yyS[yypt-8 : yypt+1]
-//line parser.y:713
+//line parser.y:715
 		{
 			tp2 := yyDollar[2].tnodeVal
 			tp4 := yyDollar[4].tnodeVal
@@ -1809,38 +1811,47 @@ yydefault:
 			requireNumericOperand(rpn6, &yyDollar[6].symLoc)
 			requireNumericOperand(rpn8, &yyDollar[8].symLoc)
 
-			requireCompatibleNumericOperands(rpn2, tp4, &yyDollar[4].symLoc, tp6,
+			requireCompatibleNumericOperands(tp2, tp4, &yyDollar[4].symLoc, tp6,
 				&yyDollar[6].symLoc, tp8, &yyDollar[8].symLoc)
 
 			yyVAL.snodeVal = makeStmtNode(FOR, rpn2, rpn4, rpn6, rpn8)
 		}
 	case 41:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:736
+//line parser.y:738
 		{
-			rpn2 := makeNrpnTokenNode(yyDollar[2].tnodeVal)
+			tp2 := yyDollar[2].tnodeVal
+			tp4 := yyDollar[4].tnodeVal
+			tp5 := yyDollar[5].tnodeVal
+
+			rpn2 := makeNrpnTokenNode(tp2)
 			rpn4 := yyDollar[4].tnodeVal
-			rpn5 := makeNrpnTokenNode(yyDollar[5].tnodeVal)
+			rpn5 := makeNrpnTokenNode(tp5)
 
 			requireDeferredStatement(FOR, &yyDollar[1].symLoc)
 			requireNumericOperand(rpn4, &yyDollar[4].symLoc)
-			requireCompatibleNumericOperands(rpn2, rpn4, &yyDollar[4].symLoc)
+			requireCompatibleNumericOperands(tp2, tp4, &yyDollar[4].symLoc)
 
 			yyVAL.snodeVal = makeStmtNode(FOR, rpn2, rpn4, rpn5)
 		}
 	case 42:
 		yyDollar = yyS[yypt-7 : yypt+1]
-//line parser.y:750
+//line parser.y:756
 		{
-			rpn2 := makeNrpnTokenNode(yyDollar[2].tnodeVal)
-			rpn4 := yyDollar[4].tnodeVal
-			rpn6 := yyDollar[6].tnodeVal
-			rpn7 := makeNrpnTokenNode(yyDollar[7].tnodeVal)
+			tp2 := yyDollar[2].tnodeVal
+			tp4 := yyDollar[4].tnodeVal
+			tp6 := yyDollar[6].tnodeVal
+			tp7 := yyDollar[7].tnodeVal
+
+			rpn2 := makeNrpnTokenNode(tp2)
+			rpn4 := makeNrpnTokenNode(tp4)
+			rpn6 := makeNrpnTokenNode(tp6)
+			rpn7 := makeNrpnTokenNode(tp7)
 
 			requireDeferredStatement(FOR, &yyDollar[1].symLoc)
 			requireNumericOperand(rpn4, &yyDollar[4].symLoc)
 			requireNumericOperand(rpn6, &yyDollar[6].symLoc)
-			requireCompatibleNumericOperands(rpn2, rpn4, &yyDollar[4].symLoc, rpn6, &yyDollar[6].symLoc)
+			requireCompatibleNumericOperands(tp2, tp4, &yyDollar[4].symLoc, tp6, &yyDollar[6].symLoc)
 
 			//
 			// The following is NOT a typo.  To simplify the code
@@ -1852,19 +1863,19 @@ yydefault:
 		}
 	case 43:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:771
+//line parser.y:782
 		{
 			yyVAL.snodeVal = makeStmtNode(FNEND)
 		}
 	case 44:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:776
+//line parser.y:787
 		{
 			yyVAL.snodeVal = makeStmtNode(GET, yyDollar[3].tnodeVal, yyDollar[4].tnodeVal)
 		}
 	case 45:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:781
+//line parser.y:792
 		{
 			requireDeferredStatement(GOSUB, &yyDollar[1].symLoc)
 
@@ -1872,7 +1883,7 @@ yydefault:
 		}
 	case 46:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:788
+//line parser.y:799
 		{
 			requireDeferredStatement(GOTO, &yyDollar[1].symLoc)
 
@@ -1880,7 +1891,7 @@ yydefault:
 		}
 	case 47:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:795
+//line parser.y:806
 		{
 			requireImmediateStatement(HELP, &yyDollar[1].symLoc)
 
@@ -1888,7 +1899,7 @@ yydefault:
 		}
 	case 48:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:802
+//line parser.y:813
 		{
 			requireImmediateStatement(HELP, &yyDollar[1].symLoc)
 
@@ -1896,7 +1907,7 @@ yydefault:
 		}
 	case 49:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:809
+//line parser.y:820
 		{
 			requireDeferredStatement(IF, &yyDollar[1].symLoc)
 
@@ -1904,7 +1915,7 @@ yydefault:
 		}
 	case 50:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:816
+//line parser.y:827
 		{
 			requireDeferredStatement(IF, &yyDollar[1].symLoc)
 
@@ -1914,7 +1925,7 @@ yydefault:
 		}
 	case 51:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:825
+//line parser.y:836
 		{
 			requireDeferredStatement(IF, &yyDollar[1].symLoc)
 
@@ -1923,7 +1934,7 @@ yydefault:
 		}
 	case 52:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:833
+//line parser.y:844
 		{
 			requireDeferredStatement(INPUT, &yyDollar[1].symLoc)
 
@@ -1931,7 +1942,7 @@ yydefault:
 		}
 	case 53:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:840
+//line parser.y:851
 		{
 			requireDeferredStatement(INPUT, &yyDollar[1].symLoc)
 
@@ -1943,7 +1954,7 @@ yydefault:
 		}
 	case 54:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:851
+//line parser.y:862
 		{
 			requireDeferredStatement(INPUT, &yyDollar[1].symLoc)
 
@@ -1956,7 +1967,7 @@ yydefault:
 		}
 	case 55:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:863
+//line parser.y:874
 		{
 			requireDeferredStatement(INPUT, &yyDollar[1].symLoc)
 
@@ -1971,13 +1982,13 @@ yydefault:
 		}
 	case 56:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:877
+//line parser.y:888
 		{
 			yyVAL.snodeVal = yyDollar[1].snodeVal
 		}
 	case 57:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:882
+//line parser.y:893
 		{
 			requireDeferredStatement(LSET, &yyDollar[1].symLoc)
 
@@ -1989,7 +2000,7 @@ yydefault:
 		}
 	case 58:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:893
+//line parser.y:904
 		{
 			requireImmediateStatement(LIST, &yyDollar[1].symLoc)
 
@@ -1997,7 +2008,7 @@ yydefault:
 		}
 	case 59:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:900
+//line parser.y:911
 		{
 			requireImmediateStatement(LISTNH, &yyDollar[1].symLoc)
 
@@ -2005,7 +2016,7 @@ yydefault:
 		}
 	case 60:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:907
+//line parser.y:918
 		{
 			requireImmediateStatement(LIST, &yyDollar[1].symLoc)
 
@@ -2013,7 +2024,7 @@ yydefault:
 		}
 	case 61:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:914
+//line parser.y:925
 		{
 			requireImmediateStatement(LISTNH, &yyDollar[1].symLoc)
 
@@ -2021,7 +2032,7 @@ yydefault:
 		}
 	case 62:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:921
+//line parser.y:932
 		{
 			requireImmediateStatement(NEW, &yyDollar[1].symLoc)
 
@@ -2029,7 +2040,7 @@ yydefault:
 		}
 	case 63:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:928
+//line parser.y:939
 		{
 			requireDeferredStatement(NEXT, &yyDollar[1].symLoc)
 
@@ -2038,7 +2049,7 @@ yydefault:
 		}
 	case 64:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:936
+//line parser.y:947
 		{
 			requireImmediateStatement(OLD, &yyDollar[1].symLoc)
 
@@ -2046,7 +2057,7 @@ yydefault:
 		}
 	case 65:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:943
+//line parser.y:954
 		{
 			requireDeferredStatement(ON, &yyDollar[1].symLoc)
 
@@ -2057,7 +2068,7 @@ yydefault:
 		}
 	case 66:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:953
+//line parser.y:964
 		{
 			requireDeferredStatement(ON, &yyDollar[1].symLoc)
 
@@ -2068,7 +2079,7 @@ yydefault:
 		}
 	case 67:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:963
+//line parser.y:974
 		{
 			requireDeferredStatement(ON, &yyDollar[1].symLoc)
 
@@ -2076,7 +2087,7 @@ yydefault:
 		}
 	case 68:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:970
+//line parser.y:981
 		{
 			requireDeferredStatement(ON, &yyDollar[1].symLoc)
 
@@ -2084,25 +2095,25 @@ yydefault:
 		}
 	case 69:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:977
+//line parser.y:988
 		{
 			yyVAL.snodeVal = yyDollar[1].snodeVal
 		}
 	case 70:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:982
+//line parser.y:993
 		{
 			yyVAL.snodeVal = yyDollar[1].snodeVal
 		}
 	case 71:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:987
+//line parser.y:998
 		{
 			yyVAL.snodeVal = makeStmtNode(PUT, yyDollar[3].tnodeVal, yyDollar[4].tnodeVal)
 		}
 	case 72:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:992
+//line parser.y:1003
 		{
 			requireDeferredStatement(RANDOMIZE, &yyDollar[1].symLoc)
 
@@ -2110,7 +2121,7 @@ yydefault:
 		}
 	case 73:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:999
+//line parser.y:1010
 		{
 			requireDeferredStatement(READ, &yyDollar[1].symLoc)
 
@@ -2118,7 +2129,7 @@ yydefault:
 		}
 	case 74:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1006
+//line parser.y:1017
 		{
 			requireDeferredStatement(REM, &yyDollar[1].symLoc)
 
@@ -2126,7 +2137,7 @@ yydefault:
 		}
 	case 75:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1013
+//line parser.y:1024
 		{
 			requireImmediateStatement(RELOAD, &yyDollar[1].symLoc)
 
@@ -2134,7 +2145,7 @@ yydefault:
 		}
 	case 76:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1020
+//line parser.y:1031
 		{
 			requireImmediateStatement(RENUMBER, &yyDollar[1].symLoc)
 
@@ -2142,7 +2153,7 @@ yydefault:
 		}
 	case 77:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1027
+//line parser.y:1038
 		{
 			requireImmediateStatement(RENUMBER, &yyDollar[1].symLoc)
 
@@ -2150,7 +2161,7 @@ yydefault:
 		}
 	case 78:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1034
+//line parser.y:1045
 		{
 			requireDeferredStatement(RESTORE, &yyDollar[1].symLoc)
 
@@ -2158,7 +2169,7 @@ yydefault:
 		}
 	case 79:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1041
+//line parser.y:1052
 		{
 			requireDeferredStatement(RESTORE, &yyDollar[1].symLoc)
 
@@ -2166,7 +2177,7 @@ yydefault:
 		}
 	case 80:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1048
+//line parser.y:1059
 		{
 			requireDeferredStatement(RESTORE, &yyDollar[1].symLoc)
 
@@ -2174,7 +2185,7 @@ yydefault:
 		}
 	case 81:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1055
+//line parser.y:1066
 		{
 			requireDeferredStatement(RETURN, &yyDollar[1].symLoc)
 
@@ -2182,7 +2193,7 @@ yydefault:
 		}
 	case 82:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1062
+//line parser.y:1073
 		{
 			requireDeferredStatement(RSET, &yyDollar[1].symLoc)
 
@@ -2194,7 +2205,7 @@ yydefault:
 		}
 	case 83:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1073
+//line parser.y:1084
 		{
 			requireImmediateStatement(RUN, &yyDollar[1].symLoc)
 
@@ -2202,7 +2213,7 @@ yydefault:
 		}
 	case 84:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1080
+//line parser.y:1091
 		{
 			requireImmediateStatement(RUNNH, &yyDollar[1].symLoc)
 
@@ -2210,7 +2221,7 @@ yydefault:
 		}
 	case 85:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1087
+//line parser.y:1098
 		{
 			requireImmediateStatement(SAVE, &yyDollar[1].symLoc)
 
@@ -2218,7 +2229,7 @@ yydefault:
 		}
 	case 86:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1094
+//line parser.y:1105
 		{
 			requireDeferredStatement(SLEEP, &yyDollar[1].symLoc)
 
@@ -2226,7 +2237,7 @@ yydefault:
 		}
 	case 87:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1101
+//line parser.y:1112
 		{
 			requireImmediateStatement(STATS, &yyDollar[1].symLoc)
 
@@ -2234,7 +2245,7 @@ yydefault:
 		}
 	case 88:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1108
+//line parser.y:1119
 		{
 			requireDeferredStatement(STOP, &yyDollar[1].symLoc)
 
@@ -2242,7 +2253,7 @@ yydefault:
 		}
 	case 89:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1115
+//line parser.y:1126
 		{
 			requireImmediateStatement(TRACE, &yyDollar[1].symLoc)
 
@@ -2250,7 +2261,7 @@ yydefault:
 		}
 	case 90:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1122
+//line parser.y:1133
 		{
 			requireDeferredStatement(WAIT, &yyDollar[1].symLoc)
 
@@ -2258,13 +2269,13 @@ yydefault:
 		}
 	case 91:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1129
+//line parser.y:1140
 		{
 			yyVAL.snodeVal = yyDollar[1].snodeVal
 		}
 	case 92:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1135
+//line parser.y:1146
 		{
 			tp1 := makeSrpnTokenNode(yyDollar[1].tnodeVal)
 			tp3 := yyDollar[3].tnodeVal
@@ -2274,13 +2285,13 @@ yydefault:
 		}
 	case 93:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1144
+//line parser.y:1155
 		{
 			yyVAL.tnodeVal = makeSrpnTokenNode(yyDollar[1].tnodeVal)
 		}
 	case 94:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1150
+//line parser.y:1161
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp3 := yyDollar[3].tnodeVal
@@ -2290,13 +2301,13 @@ yydefault:
 		}
 	case 95:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1159
+//line parser.y:1170
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 96:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1165
+//line parser.y:1176
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -2308,7 +2319,7 @@ yydefault:
 		}
 	case 97:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1177
+//line parser.y:1188
 		{
 			tp3 := yyDollar[3].tnodeVal
 
@@ -2318,13 +2329,13 @@ yydefault:
 		}
 	case 98:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1186
+//line parser.y:1197
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 99:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1192
+//line parser.y:1203
 		{
 			tp3 := yyDollar[3].tnodeVal
 
@@ -2334,13 +2345,13 @@ yydefault:
 		}
 	case 100:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1201
+//line parser.y:1212
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 103:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1216
+//line parser.y:1227
 		{
 			tp2 := yyDollar[2].tnodeVal
 
@@ -2350,7 +2361,7 @@ yydefault:
 		}
 	case 104:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1226
+//line parser.y:1237
 		{
 			tp2 := yyDollar[2].tnodeVal
 
@@ -2360,7 +2371,7 @@ yydefault:
 		}
 	case 105:
 		yyDollar = yyS[yypt-7 : yypt+1]
-//line parser.y:1236
+//line parser.y:1247
 		{
 			tp2 := yyDollar[2].tnodeVal
 			tp3 := yyDollar[3].tnodeVal
@@ -2374,121 +2385,121 @@ yydefault:
 		}
 	case 106:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1250
+//line parser.y:1261
 		{
 			yyVAL.tnodeVal = yyDollar[2].tnodeVal
 		}
 	case 107:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1255
+//line parser.y:1266
 		{
 			yyVAL.tnodeVal = makeTokenNode(INTEGER, int16(IOREAD|IOWRITE))
 		}
 	case 108:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1261
+//line parser.y:1272
 		{
 			yyVAL.tnodeVal = makeTokenNode(INTEGER, int16(IOREAD))
 		}
 	case 109:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1266
+//line parser.y:1277
 		{
 			yyVAL.tnodeVal = makeTokenNode(INTEGER, int16(IOWRITE))
 		}
 	case 116:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1289
+//line parser.y:1300
 		{
 			yyVAL.tnodeVal = makeTokenNode(BYE)
 		}
 	case 117:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1294
+//line parser.y:1305
 		{
 			yyVAL.tnodeVal = makeTokenNode(CONFIG)
 		}
 	case 118:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1299
+//line parser.y:1310
 		{
 			yyVAL.tnodeVal = makeTokenNode(CONT)
 		}
 	case 119:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1304
+//line parser.y:1315
 		{
 			yyVAL.tnodeVal = makeTokenNode(DELETE)
 		}
 	case 120:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1309
+//line parser.y:1320
 		{
 			yyVAL.tnodeVal = makeTokenNode(DENORM)
 		}
 	case 121:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1314
+//line parser.y:1325
 		{
 			yyVAL.tnodeVal = makeTokenNode(LIST)
 		}
 	case 122:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1319
+//line parser.y:1330
 		{
 			yyVAL.tnodeVal = makeTokenNode(LISTNH)
 		}
 	case 123:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1324
+//line parser.y:1335
 		{
 			yyVAL.tnodeVal = makeTokenNode(NEW)
 		}
 	case 124:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1329
+//line parser.y:1340
 		{
 			yyVAL.tnodeVal = makeTokenNode(OLD)
 		}
 	case 125:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1334
+//line parser.y:1345
 		{
 			yyVAL.tnodeVal = makeTokenNode(RELOAD)
 		}
 	case 126:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1339
+//line parser.y:1350
 		{
 			yyVAL.tnodeVal = makeTokenNode(RUN)
 		}
 	case 127:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1344
+//line parser.y:1355
 		{
 			yyVAL.tnodeVal = makeTokenNode(RUNNH)
 		}
 	case 128:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1349
+//line parser.y:1360
 		{
 			yyVAL.tnodeVal = makeTokenNode(SAVE)
 		}
 	case 129:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1354
+//line parser.y:1365
 		{
 			yyVAL.tnodeVal = makeTokenNode(STATS)
 		}
 	case 130:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1359
+//line parser.y:1370
 		{
 			yyVAL.tnodeVal = makeTokenNode(TRACE)
 		}
 	case 131:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1365
+//line parser.y:1376
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -2498,80 +2509,80 @@ yydefault:
 		}
 	case 132:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1374
+//line parser.y:1385
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 133:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1380
+//line parser.y:1391
 		{
 			yyVAL.tnodeVal = makeTokenNode(EXEC)
 		}
 	case 134:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1385
+//line parser.y:1396
 		{
 			yyVAL.tnodeVal = makeTokenNode(VARS)
 		}
 	case 135:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1390
+//line parser.y:1401
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 136:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1413
+//line parser.y:1424
 		{
 			yyVAL.tnodeVal = makeTokenNode(FNFVAR, yyDollar[1].stringVal)
 		}
 	case 137:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1418
+//line parser.y:1429
 		{
 			yyVAL.tnodeVal = makeTokenNode(FNIVAR, yyDollar[1].stringVal)
 		}
 	case 138:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1423
+//line parser.y:1434
 		{
 			yyVAL.tnodeVal = makeTokenNode(FNSVAR, yyDollar[1].stringVal)
 		}
 	case 139:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1428
+//line parser.y:1439
 		{
 			errorLoc("Invalid function name", &yyDollar[1].symLoc)
 		}
 	case 140:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1434
+//line parser.y:1445
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 141:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1439
+//line parser.y:1450
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 142:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1444
+//line parser.y:1455
 		{
 			yyVAL.tnodeVal = yyDollar[2].tnodeVal
 		}
 	case 143:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1450
+//line parser.y:1461
 		{
 			tp1 := yyDollar[1].tnodeVal
 			yyVAL.tnodeVal = tp1
 		}
 	case 144:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1456
+//line parser.y:1467
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -2580,31 +2591,31 @@ yydefault:
 		}
 	case 145:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1465
+//line parser.y:1476
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 146:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1470
+//line parser.y:1481
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 147:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1475
+//line parser.y:1486
 		{
 			yyVAL.tnodeVal = yyDollar[2].tnodeVal
 		}
 	case 148:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1481
+//line parser.y:1492
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 149:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1486
+//line parser.y:1497
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -2613,25 +2624,25 @@ yydefault:
 		}
 	case 150:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1495
+//line parser.y:1506
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 151:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1500
+//line parser.y:1511
 		{
 			errorLoc("Invalid function parameter", &yyDollar[1].symLoc)
 		}
 	case 152:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1506
+//line parser.y:1517
 		{
 			yyVAL.snodeVal = makeStmtNode(PRINT, nil, nil, nil)
 		}
 	case 153:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1511
+//line parser.y:1522
 		{
 			t2 := yyDollar[2].tnodeVal
 
@@ -2646,7 +2657,7 @@ yydefault:
 		}
 	case 154:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:1525
+//line parser.y:1536
 		{
 			t3 := yyDollar[3].tnodeVal
 
@@ -2656,7 +2667,7 @@ yydefault:
 		}
 	case 155:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:1535
+//line parser.y:1546
 		{
 			//
 			// Formatting and zones are not relevant when doing
@@ -2682,7 +2693,7 @@ yydefault:
 		}
 	case 156:
 		yyDollar = yyS[yypt-7 : yypt+1]
-//line parser.y:1560
+//line parser.y:1571
 		{
 			//
 			// Formatting and zones are not relevant when doing
@@ -2710,25 +2721,25 @@ yydefault:
 		}
 	case 157:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1600
+//line parser.y:1611
 		{
 			yyVAL.tnodeVal = makeTokenNode(FILENAME, yyDollar[1].stringVal)
 		}
 	case 158:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1605
+//line parser.y:1616
 		{
 			errorLoc("Invalid filename!")
 		}
 	case 159:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:1609
+//line parser.y:1620
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 160:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1615
+//line parser.y:1626
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.next = yyDollar[3].tnodeVal
@@ -2736,13 +2747,13 @@ yydefault:
 		}
 	case 161:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1622
+//line parser.y:1633
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 162:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1628
+//line parser.y:1639
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -2752,7 +2763,7 @@ yydefault:
 		}
 	case 163:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1638
+//line parser.y:1649
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.next = yyDollar[3].tnodeVal
@@ -2760,118 +2771,118 @@ yydefault:
 		}
 	case 164:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1645
+//line parser.y:1656
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 165:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1651
+//line parser.y:1662
 		{
 			yyVAL.tnodeVal = makeTokenNode(WHILE, yyDollar[2].tnodeVal)
 		}
 	case 166:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1656
+//line parser.y:1667
 		{
 			yyVAL.tnodeVal = makeTokenNode(UNTIL, yyDollar[2].tnodeVal)
 		}
 	case 167:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1676
+//line parser.y:1687
 		{
 			yyVAL.tnodeVal = makeTokenNode(STMT, yyDollar[1].snodeVal)
 		}
 	case 168:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1681
+//line parser.y:1692
 		{
 			sp := makeStmtNode(GOSUB, yyDollar[2].tnodeVal)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 169:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1687
+//line parser.y:1698
 		{
 			sp := makeStmtNode(GOTO, yyDollar[2].tnodeVal)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 170:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1693
+//line parser.y:1704
 		{
 			yyVAL.tnodeVal = makeTokenNode(STMT, yyDollar[1].snodeVal)
 		}
 	case 171:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1698
+//line parser.y:1709
 		{
 			yyVAL.tnodeVal = makeTokenNode(STMT, yyDollar[1].snodeVal)
 		}
 	case 172:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1703
+//line parser.y:1714
 		{
 			yyVAL.tnodeVal = makeTokenNode(STMT, yyDollar[1].snodeVal)
 		}
 	case 173:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1708
+//line parser.y:1719
 		{
 			sp := makeStmtNode(RANDOMIZE)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 174:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1714
+//line parser.y:1725
 		{
 			sp := makeStmtNode(RESTORE)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 175:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1720
+//line parser.y:1731
 		{
 			sp := makeStmtNode(RESUME)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 176:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:1726
+//line parser.y:1737
 		{
 			sp := makeStmtNode(RESUME, yyDollar[2].tnodeVal)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 177:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1732
+//line parser.y:1743
 		{
 			sp := makeStmtNode(RANDOMIZE)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 178:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1738
+//line parser.y:1749
 		{
 			sp := makeStmtNode(STOP)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 179:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1744
+//line parser.y:1755
 		{
 			yyVAL.tnodeVal = makeTokenNode(STMT, yyDollar[1].snodeVal)
 		}
 	case 180:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1749
+//line parser.y:1760
 		{
 			sp := makeStmtNode(GOTO, yyDollar[1].tnodeVal)
 			yyVAL.tnodeVal = makeTokenNode(STMT, sp)
 		}
 	case 181:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1756
+//line parser.y:1767
 		{
 			requireNumericOperand(yyDollar[4].tnodeVal, &yyDollar[4].symLoc)
 
@@ -2881,7 +2892,7 @@ yydefault:
 		}
 	case 182:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1765
+//line parser.y:1776
 		{
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
 
@@ -2891,7 +2902,7 @@ yydefault:
 		}
 	case 183:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1774
+//line parser.y:1785
 		{
 			requireStringOperand(yyDollar[4].tnodeVal, &yyDollar[4].symLoc)
 
@@ -2901,7 +2912,7 @@ yydefault:
 		}
 	case 184:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1783
+//line parser.y:1794
 		{
 			requireStringOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
 
@@ -2911,7 +2922,7 @@ yydefault:
 		}
 	case 185:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1792
+//line parser.y:1803
 		{
 			if isNumeric(yyDollar[2].tnodeVal) {
 				requireNumericOperand(yyDollar[4].tnodeVal, &yyDollar[4].symLoc)
@@ -2925,7 +2936,7 @@ yydefault:
 		}
 	case 186:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1805
+//line parser.y:1816
 		{
 			if isNumeric(yyDollar[1].tnodeVal) {
 				requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -2939,20 +2950,20 @@ yydefault:
 		}
 	case 187:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1819
+//line parser.y:1830
 		{
 			yyDollar[1].tnodeVal.next = yyDollar[3].tnodeVal
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 188:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1825
+//line parser.y:1836
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 189:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1831
+//line parser.y:1842
 		{
 			firstStmt := yyDollar[1].tnodeVal.tokenData.(int16)
 			lastStmt := yyDollar[3].tnodeVal.tokenData.(int16)
@@ -2966,13 +2977,13 @@ yydefault:
 		}
 	case 190:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1844
+//line parser.y:1855
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 191:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1850
+//line parser.y:1861
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp2 := yyDollar[3].tnodeVal
@@ -2982,13 +2993,13 @@ yydefault:
 		}
 	case 192:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1859
+//line parser.y:1870
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 193:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1865
+//line parser.y:1876
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.operands = append(tp1.operands, yyDollar[3].tnodeVal)
@@ -2997,7 +3008,7 @@ yydefault:
 		}
 	case 194:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:1873
+//line parser.y:1884
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.operands = append(tp1.operands, yyDollar[3].tnodeVal)
@@ -3007,7 +3018,7 @@ yydefault:
 		}
 	case 195:
 		yyDollar = yyS[yypt-4 : yypt+1]
-//line parser.y:1882
+//line parser.y:1893
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.operands = append(tp1.operands, yyDollar[3].tnodeVal)
@@ -3016,7 +3027,7 @@ yydefault:
 		}
 	case 196:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:1890
+//line parser.y:1901
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.operands = append(tp1.operands, yyDollar[3].tnodeVal)
@@ -3026,13 +3037,13 @@ yydefault:
 		}
 	case 197:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1910
+//line parser.y:1921
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 198:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1915
+//line parser.y:1926
 		{
 			tp1 := yyDollar[1].tnodeVal
 
@@ -3041,13 +3052,13 @@ yydefault:
 		}
 	case 199:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1924
+//line parser.y:1935
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 200:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1930
+//line parser.y:1941
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp3 := yyDollar[3].tnodeVal
@@ -3056,7 +3067,7 @@ yydefault:
 		}
 	case 201:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1939
+//line parser.y:1950
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.next = yyDollar[3].tnodeVal
@@ -3065,13 +3076,13 @@ yydefault:
 		}
 	case 202:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1947
+//line parser.y:1958
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 203:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:1953
+//line parser.y:1964
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp1.next = yyDollar[3].tnodeVal
@@ -3080,49 +3091,49 @@ yydefault:
 		}
 	case 204:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1961
+//line parser.y:1972
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 205:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1967
+//line parser.y:1978
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 206:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1972
+//line parser.y:1983
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 207:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1977
+//line parser.y:1988
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 208:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1982
+//line parser.y:1993
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 209:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1988
+//line parser.y:1999
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 210:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:1993
+//line parser.y:2004
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 215:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2010
+//line parser.y:2021
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp2 := yyDollar[2].tnodeVal
@@ -3134,103 +3145,103 @@ yydefault:
 		}
 	case 216:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2021
+//line parser.y:2032
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 217:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2027
+//line parser.y:2038
 		{
 			yyVAL.tnodeVal = makeTokenNode(TRAILING_COMMA)
 		}
 	case 218:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2032
+//line parser.y:2043
 		{
 			yyVAL.tnodeVal = makeTokenNode(TRAILING_SEMI)
 		}
 	case 219:
 		yyDollar = yyS[yypt-0 : yypt+1]
-//line parser.y:2037
+//line parser.y:2048
 		{
 			yyVAL.tnodeVal = nil
 		}
 	case 220:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2043
+//line parser.y:2054
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 221:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2049
+//line parser.y:2060
 		{
 			yyVAL.tnodeVal = makeTokenNode(DCOMMA)
 		}
 	case 222:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2054
+//line parser.y:2065
 		{
 			yyVAL.tnodeVal = makeTokenNode(COMMA)
 		}
 	case 223:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2059
+//line parser.y:2070
 		{
 			yyVAL.tnodeVal = makeTokenNode(SEMI)
 		}
 	case 224:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2065
+//line parser.y:2076
 		{
 			yyVAL.tnodeVal = makeTokenNode(STRING, yyDollar[1].stringVal)
 		}
 	case 225:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2070
+//line parser.y:2081
 		{
 			errorLoc("Unterminated string", &yyDollar[1].symLoc)
 		}
 	case 226:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2076
+//line parser.y:2087
 		{
 			yyVAL.tnodeVal = makeTokenNode(SUBSCR, yyDollar[1].tnodeVal, yyDollar[2].tnodeVal)
 		}
 	case 227:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2082
+//line parser.y:2093
 		{
 			yyVAL.tnodeVal = makeTokenNode(FVAR, yyDollar[1].stringVal)
 		}
 	case 228:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2088
+//line parser.y:2099
 		{
 			yyVAL.tnodeVal = makeTokenNode(SUBSCR, yyDollar[1].tnodeVal, yyDollar[2].tnodeVal)
 		}
 	case 229:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2094
+//line parser.y:2105
 		{
 			yyVAL.tnodeVal = makeTokenNode(IVAR, yyDollar[1].stringVal)
 		}
 	case 230:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2100
+//line parser.y:2111
 		{
 			yyVAL.tnodeVal = makeTokenNode(SUBSCR, yyDollar[1].tnodeVal, yyDollar[2].tnodeVal)
 		}
 	case 231:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2106
+//line parser.y:2117
 		{
 			yyVAL.tnodeVal = makeTokenNode(SVAR, yyDollar[1].stringVal)
 		}
 	case 232:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2121
+//line parser.y:2132
 		{
 			i64 := yyDollar[1].int64Val
 
@@ -3240,7 +3251,7 @@ yydefault:
 		}
 	case 233:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2131
+//line parser.y:2142
 		{
 			i64 := yyDollar[1].int64Val
 
@@ -3253,7 +3264,7 @@ yydefault:
 		}
 	case 234:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2144
+//line parser.y:2155
 		{
 			i64 := yyDollar[1].int64Val
 
@@ -3266,7 +3277,7 @@ yydefault:
 		}
 	case 235:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2157
+//line parser.y:2168
 		{
 			//
 			// Tricky: we are parsing an explicit integer, so we
@@ -3288,43 +3299,43 @@ yydefault:
 		}
 	case 236:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2179
+//line parser.y:2190
 		{
 			yyVAL.tnodeVal = makeTokenNode(FLOAT, float64(yyDollar[1].int64Val))
 		}
 	case 237:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2185
+//line parser.y:2196
 		{
 			yyVAL.tnodeVal = makeTokenNode(FLOAT, yyDollar[1].float64Val)
 		}
 	case 238:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2198
+//line parser.y:2209
 		{
 			yyVAL.tnodeVal = createRpnExpr(yyDollar[1].tnodeVal)
 		}
 	case 239:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2212
+//line parser.y:2223
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 240:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2217
+//line parser.y:2228
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 241:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2222
+//line parser.y:2233
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 242:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2227
+//line parser.y:2238
 		{
 			tp1 := yyDollar[1].tnodeVal
 			tp2 := createTokenNodeSlice(yyDollar[2].tnodeVal)
@@ -3358,13 +3369,13 @@ yydefault:
 		}
 	case 243:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2260
+//line parser.y:2271
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 244:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2265
+//line parser.y:2276
 		{
 			token := requireCompatibleOperands(PLUS, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3373,7 +3384,7 @@ yydefault:
 		}
 	case 245:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2273
+//line parser.y:2284
 		{
 			requireNumericOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3382,7 +3393,7 @@ yydefault:
 		}
 	case 246:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2281
+//line parser.y:2292
 		{
 			requireNumericOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3391,7 +3402,7 @@ yydefault:
 		}
 	case 247:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2289
+//line parser.y:2300
 		{
 			requireNumericOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3400,7 +3411,7 @@ yydefault:
 		}
 	case 248:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2297
+//line parser.y:2308
 		{
 			requireNumericOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3409,13 +3420,13 @@ yydefault:
 		}
 	case 249:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2304
+//line parser.y:2315
 		{
 			parsingUneg = true
 		}
 	case 250:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2305
+//line parser.y:2316
 		{
 			requireNumericOperand(yyDollar[3].tnodeVal, &yyDollar[2].symLoc)
 
@@ -3425,7 +3436,7 @@ yydefault:
 		}
 	case 251:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2314
+//line parser.y:2325
 		{
 			requireNumericOperand(yyDollar[2].tnodeVal, &yyDollar[2].symLoc)
 
@@ -3433,122 +3444,122 @@ yydefault:
 		}
 	case 252:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2321
+//line parser.y:2332
 		{
 
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 253:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2327
+//line parser.y:2338
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 254:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2332
+//line parser.y:2343
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 255:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2337
+//line parser.y:2348
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 256:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2342
+//line parser.y:2353
 		{
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 257:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2348
+//line parser.y:2359
 		{
 			yyVAL.tnodeVal = makeTokenNode(ABS, yyDollar[2].tnodeVal)
 		}
 	case 258:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2353
+//line parser.y:2364
 		{
 			yyVAL.tnodeVal = makeTokenNode(ASCII, yyDollar[2].tnodeVal)
 		}
 	case 259:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2358
+//line parser.y:2369
 		{
 			yyVAL.tnodeVal = makeTokenNode(ATN, yyDollar[2].tnodeVal)
 		}
 	case 260:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2363
+//line parser.y:2374
 		{
 			yyVAL.tnodeVal = makeTokenNode(CHRS, yyDollar[2].tnodeVal)
 		}
 	case 261:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2368
+//line parser.y:2379
 		{
 			yyVAL.tnodeVal = makeTokenNode(COS, yyDollar[2].tnodeVal)
 		}
 	case 262:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2373
+//line parser.y:2384
 		{
 			yyVAL.tnodeVal = makeTokenNode(CVTFS, yyDollar[2].tnodeVal)
 		}
 	case 263:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2378
+//line parser.y:2389
 		{
 			yyVAL.tnodeVal = makeTokenNode(CVTIS, yyDollar[2].tnodeVal)
 		}
 	case 264:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2383
+//line parser.y:2394
 		{
 			yyVAL.tnodeVal = makeTokenNode(CVTSF, yyDollar[2].tnodeVal)
 		}
 	case 265:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2388
+//line parser.y:2399
 		{
 			yyVAL.tnodeVal = makeTokenNode(CVTSI, yyDollar[2].tnodeVal)
 		}
 	case 266:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2393
+//line parser.y:2404
 		{
 			yyVAL.tnodeVal = makeTokenNode(DATES, yyDollar[2].tnodeVal)
 		}
 	case 267:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2398
+//line parser.y:2409
 		{
 			yyVAL.tnodeVal = makeTokenNode(ERL)
 		}
 	case 268:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2403
+//line parser.y:2414
 		{
 			yyVAL.tnodeVal = makeTokenNode(ERR)
 		}
 	case 269:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2408
+//line parser.y:2419
 		{
 			yyVAL.tnodeVal = makeTokenNode(EXP, yyDollar[2].tnodeVal)
 		}
 	case 270:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2413
+//line parser.y:2424
 		{
 			yyVAL.tnodeVal = makeTokenNode(FIX, yyDollar[2].tnodeVal)
 		}
 	case 271:
 		yyDollar = yyS[yypt-8 : yypt+1]
-//line parser.y:2418
+//line parser.y:2429
 		{
 			arg1 := yyDollar[3].tnodeVal
 			arg2 := yyDollar[5].tnodeVal
@@ -3562,13 +3573,13 @@ yydefault:
 		}
 	case 272:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2431
+//line parser.y:2442
 		{
 			yyVAL.tnodeVal = makeTokenNode(INT, yyDollar[2].tnodeVal)
 		}
 	case 273:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:2436
+//line parser.y:2447
 		{
 			arg1 := yyDollar[3].tnodeVal
 			arg2 := yyDollar[5].tnodeVal
@@ -3580,25 +3591,25 @@ yydefault:
 		}
 	case 274:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2447
+//line parser.y:2458
 		{
 			yyVAL.tnodeVal = makeTokenNode(LEN, yyDollar[2].tnodeVal)
 		}
 	case 275:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2452
+//line parser.y:2463
 		{
 			yyVAL.tnodeVal = makeTokenNode(LOG, yyDollar[2].tnodeVal)
 		}
 	case 276:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2457
+//line parser.y:2468
 		{
 			yyVAL.tnodeVal = makeTokenNode(LOG10, yyDollar[2].tnodeVal)
 		}
 	case 277:
 		yyDollar = yyS[yypt-8 : yypt+1]
-//line parser.y:2462
+//line parser.y:2473
 		{
 			arg1 := yyDollar[3].tnodeVal
 			arg2 := yyDollar[5].tnodeVal
@@ -3612,25 +3623,25 @@ yydefault:
 		}
 	case 278:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2475
+//line parser.y:2486
 		{
 			yyVAL.tnodeVal = makeTokenNode(NUMS, yyDollar[2].tnodeVal)
 		}
 	case 279:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2480
+//line parser.y:2491
 		{
 			yyVAL.tnodeVal = makeTokenNode(PI)
 		}
 	case 280:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2485
+//line parser.y:2496
 		{
 			yyVAL.tnodeVal = makeTokenNode(POS, yyDollar[2].tnodeVal)
 		}
 	case 281:
 		yyDollar = yyS[yypt-6 : yypt+1]
-//line parser.y:2490
+//line parser.y:2501
 		{
 			arg1 := yyDollar[3].tnodeVal
 			arg2 := yyDollar[5].tnodeVal
@@ -3642,80 +3653,80 @@ yydefault:
 		}
 	case 282:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2501
+//line parser.y:2512
 		{
 			yyVAL.tnodeVal = makeTokenNode(RND)
 		}
 	case 283:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2506
+//line parser.y:2517
 		{
 			// ignore the argument!
 			yyVAL.tnodeVal = makeTokenNode(RND)
 		}
 	case 284:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2512
+//line parser.y:2523
 		{
 			yyVAL.tnodeVal = makeTokenNode(SGN, yyDollar[2].tnodeVal)
 		}
 	case 285:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2517
+//line parser.y:2528
 		{
 			yyVAL.tnodeVal = makeTokenNode(SIN, yyDollar[2].tnodeVal)
 		}
 	case 286:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2522
+//line parser.y:2533
 		{
 			yyVAL.tnodeVal = makeTokenNode(SPACES, yyDollar[2].tnodeVal)
 		}
 	case 287:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2527
+//line parser.y:2538
 		{
 			yyVAL.tnodeVal = makeTokenNode(SQR, yyDollar[2].tnodeVal)
 		}
 	case 288:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2532
+//line parser.y:2543
 		{
 			yyVAL.tnodeVal = makeTokenNode(SWAPI, yyDollar[2].tnodeVal)
 		}
 	case 289:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2537
+//line parser.y:2548
 		{
 			yyVAL.tnodeVal = makeTokenNode(TAB, yyDollar[2].tnodeVal)
 		}
 	case 290:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2542
+//line parser.y:2553
 		{
 			yyVAL.tnodeVal = makeTokenNode(TAN, yyDollar[2].tnodeVal)
 		}
 	case 291:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2547
+//line parser.y:2558
 		{
 			yyVAL.tnodeVal = makeTokenNode(TIME, yyDollar[2].tnodeVal)
 		}
 	case 292:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2552
+//line parser.y:2563
 		{
 			yyVAL.tnodeVal = makeTokenNode(TIMES, yyDollar[2].tnodeVal)
 		}
 	case 293:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2557
+//line parser.y:2568
 		{
 			yyVAL.tnodeVal = makeTokenNode(VAL, yyDollar[2].tnodeVal)
 		}
 	case 294:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2563
+//line parser.y:2574
 		{
 			token := requireCompatibleOperands(APPROX, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3723,7 +3734,7 @@ yydefault:
 		}
 	case 295:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2570
+//line parser.y:2581
 		{
 			token := requireCompatibleOperands(EQ, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3731,7 +3742,7 @@ yydefault:
 		}
 	case 296:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2577
+//line parser.y:2588
 		{
 			token := requireCompatibleOperands(GE, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3739,7 +3750,7 @@ yydefault:
 		}
 	case 297:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2584
+//line parser.y:2595
 		{
 			token := requireCompatibleOperands(GT, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3747,7 +3758,7 @@ yydefault:
 		}
 	case 298:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2591
+//line parser.y:2602
 		{
 			token := requireCompatibleOperands(LE, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3755,7 +3766,7 @@ yydefault:
 		}
 	case 299:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2598
+//line parser.y:2609
 		{
 			token := requireCompatibleOperands(LT, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3763,7 +3774,7 @@ yydefault:
 		}
 	case 300:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2605
+//line parser.y:2616
 		{
 			token := requireCompatibleOperands(NE, yyDollar[1].tnodeVal,
 				yyDollar[3].tnodeVal, &yyDollar[1].symLoc, &yyDollar[3].symLoc)
@@ -3771,14 +3782,14 @@ yydefault:
 		}
 	case 301:
 		yyDollar = yyS[yypt-2 : yypt+1]
-//line parser.y:2612
+//line parser.y:2623
 		{
 			requireIntegerOperand(yyDollar[2].tnodeVal, &yyDollar[2].symLoc)
 			yyVAL.tnodeVal = makeTokenNode(NOT, yyDollar[2].tnodeVal)
 		}
 	case 302:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2619
+//line parser.y:2630
 		{
 			requireIntegerOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireIntegerOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3788,7 +3799,7 @@ yydefault:
 		}
 	case 303:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2628
+//line parser.y:2639
 		{
 			requireIntegerOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireIntegerOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3798,7 +3809,7 @@ yydefault:
 		}
 	case 304:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2637
+//line parser.y:2648
 		{
 			requireIntegerOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireIntegerOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3808,7 +3819,7 @@ yydefault:
 		}
 	case 305:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2646
+//line parser.y:2657
 		{
 			requireIntegerOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireIntegerOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3818,7 +3829,7 @@ yydefault:
 		}
 	case 306:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2655
+//line parser.y:2666
 		{
 			requireIntegerOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			requireIntegerOperand(yyDollar[3].tnodeVal, &yyDollar[3].symLoc)
@@ -3828,27 +3839,27 @@ yydefault:
 		}
 	case 307:
 		yyDollar = yyS[yypt-1 : yypt+1]
-//line parser.y:2665
+//line parser.y:2676
 		{
 			requireNumericOperand(yyDollar[1].tnodeVal, &yyDollar[1].symLoc)
 			yyVAL.tnodeVal = yyDollar[1].tnodeVal
 		}
 	case 308:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2672
+//line parser.y:2683
 		{
 			yyVAL.tnodeVal = yyDollar[2].tnodeVal
 		}
 	case 309:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2678
+//line parser.y:2689
 		{
 			requireStringOperand(yyDollar[2].tnodeVal, &yyDollar[2].symLoc)
 			yyVAL.tnodeVal = yyDollar[2].tnodeVal
 		}
 	case 310:
 		yyDollar = yyS[yypt-3 : yypt+1]
-//line parser.y:2685
+//line parser.y:2696
 		{
 			requireNumericOperand(yyDollar[2].tnodeVal, &yyDollar[2].symLoc)
 
@@ -3856,7 +3867,7 @@ yydefault:
 		}
 	case 311:
 		yyDollar = yyS[yypt-5 : yypt+1]
-//line parser.y:2692
+//line parser.y:2703
 		{
 			requireNumericOperand(yyDollar[2].tnodeVal, &yyDollar[2].symLoc)
 			requireNumericOperand(yyDollar[4].tnodeVal, &yyDollar[4].symLoc)
