@@ -1461,6 +1461,15 @@ func decodeStmtNoString(stmt *stmtNode) string {
 
 }
 
+func fetchStmtNoFromFip(fip *faultInfo) int16 {
+
+	if fip != nil && fip.state != nil && fip.state.stmt != nil {
+		return fetchStmtNo(fip.state.stmt)
+	} else {
+		return 0
+	}
+}
+
 func fetchStmtNo(stmt *stmtNode) int16 {
 
 	if stmt.head == nil {

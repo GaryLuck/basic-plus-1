@@ -807,11 +807,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				rpnPush(stackp, boolToInt16(left == right))
 
 			case ERL:
-				if r.fip != nil {
-					rpnPush(stackp, fetchStmtNo(r.fip.state.stmt))
-				} else {
-					rpnPush(stackp, int16(0))
-				}
+				rpnPush(stackp, fetchStmtNoFromFip(r.fip))
 
 			case ERR:
 				if r.fip != nil {
@@ -1817,8 +1813,8 @@ func executeRandomize() {
 // after THEN or ELSE transfer control.  It's seriously ugly to try to
 // band-aid around that.  What we do instead is call exitToPrompt.
 // We need to explicitly set r.nextStmt here in case the user enters
-// the CONT command.  This only works because STOP must be the only
-// statement on a line
+// the CONT command.  This only works because STOP cannot be part of
+// a chain of multiple statements
 //
 
 func executeStop() {

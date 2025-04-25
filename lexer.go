@@ -173,7 +173,7 @@ func errorLocFull(l string, e string, doPanic bool, yylloc ...*yySymLoc) {
 				if tLoc.pos.column <= len(l) {
 					colorSeq = colorRed
 				} else {
-					e = "Unexpected newline"
+					e = "Unexpected end of input"
 					l = l + " "
 				}
 			} else {
