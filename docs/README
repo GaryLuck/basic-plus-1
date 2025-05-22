@@ -278,3 +278,6 @@ data file, no?  Since this implementation runs on modern Linux code,
 we use the otherwise obsolete sticky bit ('T') to indicate a record
 mode file.
 
+Add an 'edit' command that allows editing the current (saved) program
+using the editor defined by the environment variable EDITOR.
+

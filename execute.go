@@ -85,6 +85,8 @@ func executeNew(tnode *tokenNode) {
 	g.program = nil // yes, it really is that simple :)
 	g.endStmtNo = 0
 
+	initSymbolTable()
+
 	clearModified()
 
 	//
@@ -103,8 +105,6 @@ func executeNew(tnode *tokenNode) {
 	setProgramFilename(name)
 
 	initializeRun()
-
-	initSymbolTable()
 }
 
 func executeOld(filename string) {

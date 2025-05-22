@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"golang.org/x/term"
 	"math"
 	"math/rand"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
 	"runtime"
@@ -34,8 +36,6 @@ var numericOps = []int{ABS, AND, APPROX, ASCII, ATN, COS, CVTSF, CVTSI,
 	NCALL, NE, NOT, NRPN, PI, POS, PLUS, POW, RND, SGN, SIN, SLASH, SQR,
 	STAR, STREQ, STRGE, STRGT, STRLE, STRLT, STRNE, SWAPI, TAN, TIME,
 	UNEG, VAL, XOR}
-
-var buildTimestampStr string
 
 func init() {
 
@@ -76,6 +76,8 @@ func main() {
 		}
 	}
 
+	clearScreen()
+
 	printVersionInfo()
 
 	//
@@ -89,7 +91,6 @@ func main() {
 	//
 
 	for !g.exiting {
-
 		g.running = false
 		parsingUneg = false
 		parsingDef = false
@@ -120,35 +121,28 @@ func initHacks() {
 	}
 }
 
+func initWindow() {
+}
+
 func initEnv() {
+
+	var err error
 
 	checkTerminal()
 
-	width, _, err := term.GetSize(0)
+	g.window.rows, g.window.cols, err = term.GetSize(0)
 
 	if err != nil {
 		crash("Unable to read terminal parameters")
 	}
 
-	if width < 70 {
+	if g.window.rows < 70 {
 		crash("Terminal width must be >= 70 characters")
 	}
 
-	g.numOutputZones = width / zoneWidth
+	g.numOutputZones = g.window.rows / zoneWidth
 
-	// We create two Liner instances.  One for the parser, and one for
-	// any INPUT statements.  We do this because we want a scrollback
-	// history for the parser, but not for user input.  We need to create
-	// and destroy them in LIFO order, as the Close method is documented
-	// as 'restoring the terminal to its previous state'.  This means that
-	// if we create the parser instance, and then the 'input' instance, the
-	// terminal state will go normal => raw => raw.  If we then Close them
-	// in reverse order, we will see raw => raw => normal
-	//
-
-	g.parserLiner = setupLiner()
-	g.inputLiner = setupLiner()
-	g.inputLiner.SetCtrlCAborts(true)
+	setupLiners()
 
 	g.loginTime = time.Now()
 }
@@ -222,6 +216,7 @@ func sigHdlr() {
 	ch := make(chan os.Signal, 1)
 
 	signal.Ignore(syscall.SIGTSTP)
+
 	signal.Notify(ch, syscall.SIGQUIT)
 	signal.Notify(ch, syscall.SIGINT)
 
@@ -714,14 +709,7 @@ func saveProgram(file *file) {
 
 func processStmtNode(stmtNo int16, delete bool) {
 
-	stmt := stmtAvlTreeLookup(stmtNo, cmpInt16Key)
-	if stmt != nil {
-		if delete {
-			stmtAvlTreeRemove(stmt)
-		} else {
-			fmt.Println(stmt.line)
-		}
-	}
+	processStmtRange(stmtNo, stmtNo, delete)
 }
 
 func processStmtRange(firstStmt, lastStmt int16, delete bool) {
@@ -2423,5 +2411,121 @@ func openBasicFile(filename string, iomode int) *file {
 		return nil
 	} else {
 		return tfile
+	}
+}
+
+//
+// Edit the current program
+//
+
+func executeEdit() {
+
+	var err error
+	var wstatus syscall.WaitStatus
+	var cmd string
+	var savedHistory bytes.Buffer
+
+	editor := os.Getenv("EDITOR")
+	fds := []uintptr{0, 1, 2}
+	args := []string{editor, g.programFilename}
+
+	//
+	// Make sure a usable editor has been defined
+	//
+
+	if editor == "" {
+		runtimeError("EDITOR not set")
+
+	}
+
+	if cmd, err = exec.LookPath(editor); err != nil {
+		runtimeError(fmt.Sprintf("Editor %v not found", editor))
+	}
+
+	if g.programFilename == "" {
+		runtimeError("No program file is active")
+	}
+
+	//
+	// make sure we don't lose any active changes
+	//
+
+	checkModified()
+
+	//
+	// Save the command history, since we need to delete the
+	// active liners, do the edit, and recreate them
+	//
+
+	if _, err = g.parserLiner.WriteHistory(&savedHistory); err != nil {
+		fatalError("Unable to save command history (%v)", err)
+	}
+
+	//
+	// Put us back in cooked mode, in case the editor is something
+	// like 'ed'
+	//
+
+	cleanupLiners()
+
+	pa := &syscall.ProcAttr{Env: os.Environ(), Files: fds}
+
+	//
+	// Invoke the editor on the current program
+	//
+
+	if _, _, err = syscall.StartProcess(cmd, args, pa); err != nil {
+		runtimeError(cmd + " " + err.Error())
+	}
+
+	//
+	// Wait for it to exit
+	//
+
+	if _, err = syscall.Wait4(-1, &wstatus, 0, nil); err != nil {
+		runtimeError(err.Error())
+	} else if wstatus != 0 {
+		runtimeError(fmt.Sprintf("%v failed - status %v", editor, wstatus))
+	}
+
+	//
+	// Reenable the liners
+	//
+
+	setupLiners()
+
+	//
+	// Restore the command history
+	//
+
+	fmt.Println(savedHistory)
+
+	if _, err = g.parserLiner.ReadHistory(&savedHistory); err != nil {
+		fatalError("Unable to restore command history (%v)", err)
+	}
+
+	//
+	// Restore the output view and command history
+	//
+
+	clearScreen()
+
+	//
+	// Finally, reload the current program
+	//
+
+	executeOld(g.programFilename)
+}
+
+//
+// Clear the screen and position the cursor at column 0 of the
+// last line
+//
+
+func clearScreen() {
+
+	fmt.Print(clearScreenSeq)
+	for i := 0; i < g.window.rows; i++ {
+		fmt.Println()
 	}
 }

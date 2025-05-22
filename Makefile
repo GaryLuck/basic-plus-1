@@ -1,6 +1,6 @@
 
 GO_FILES = basic.go definitions.go errors.go execute.go help.go lexer.go \
-	parser.go prtu.go stmt.go symtab.go utils.go
+	prtu.go stmt.go symtab.go utils.go
 EXECUTABLE = basic-plus
 DOCS = ./docs
 LDFLAGS = "-X 'main.buildTimestampStr=`date`'"
@@ -8,7 +8,7 @@ GITPATH = ~/git/basic-plus
 
 all: basic-plus
 
-$(EXECUTABLE): $(GO_FILES)
+$(EXECUTABLE): $(GO_FILES) parser.go
 	go fmt && CGO_ENABLED=0 go build -ldflags=$(LDFLAGS)
 
 parser.go: parser.y

@@ -51,9 +51,10 @@ const blockSize = 512
 const yyFirsttok = ABS
 const yyLasttok = UNEG
 
-const colorRed = "\033[31m"
-const colorReset = "\033[0m"
-const colorInverseVideo = "\033[7m"
+const colorRedSeq = "\033[31m"
+const colorResetSeq = "\033[0m"
+const colorInverseVideoSeq = "\033[7m"
+const clearScreenSeq = "\033[2J"
 
 const executePrompt = "? "
 
@@ -67,8 +68,6 @@ const minExpArg = -745
 const maxExpArg = 709
 
 const ctrlZ = rune(26)
-
-const recordFileSignature = "**** BASIC-PLUS RECORD FILE ****"
 
 //
 // I/O mode definitions
@@ -300,9 +299,16 @@ type run struct {
 
 type myWrite func([]byte) (int, error)
 
+type window struct {
+	rows int
+	cols int
+}
+
 //
 // Global variables
 //
+
+var buildTimestampStr string
 
 //
 // This structure contains the non-persistent state of a program
@@ -322,6 +328,7 @@ var g struct {
 	inputLiner      *liner.State
 	programFile     *file
 	programFilename string
+	window          window
 	numOutputZones  int
 	endStmtNo       int16
 	loginTime       time.Time

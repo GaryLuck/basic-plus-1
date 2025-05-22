@@ -52,6 +52,8 @@ func stmtAvlTreeInsert(stmt *stmtNode, cmp avl.CmpFuncNode) {
 
 	initializeRun()
 
+	initSymbolTable()
+
 	//
 	// Set the modified flag
 	//
@@ -116,6 +118,8 @@ func stmtAvlTreeRemove(stmt *stmtNode) {
 	}
 
 	initializeRun()
+
+	initSymbolTable()
 
 	//
 	// If we have one or more statements left, set the modified flag

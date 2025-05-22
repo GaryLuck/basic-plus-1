@@ -171,13 +171,13 @@ func errorLocFull(l string, e string, doPanic bool, yylloc ...*yySymLoc) {
 
 			if e != "" {
 				if tLoc.pos.column <= len(l) {
-					colorSeq = colorRed
+					colorSeq = colorRedSeq
 				} else {
 					e = "Unexpected end of input"
 					l = l + " "
 				}
 			} else {
-				colorSeq = colorInverseVideo
+				colorSeq = colorInverseVideoSeq
 			}
 
 			l = colorizeString(l, &tLoc, colorSeq)

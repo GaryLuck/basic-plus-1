@@ -12,6 +12,7 @@ func executeHelp(targ *tokenNode) {
 		fmt.Println("cont")
 		fmt.Println("delete")
 		fmt.Println("denorm")
+		fmt.Println("edit")
 		fmt.Println("list")
 		fmt.Println("listnh")
 		fmt.Println("new")
@@ -42,6 +43,10 @@ func executeHelp(targ *tokenNode) {
 
 	case DENORM:
 		fmt.Println("Toggle denormalized floating point mode")
+
+	case EDIT:
+		fmt.Println("Invoke the editor defined by the environment")
+		fmt.Println("variable EDITOR on the current (saved) program")
 
 	case LIST:
 		fmt.Println("List one or more statements/ranges of statements" +

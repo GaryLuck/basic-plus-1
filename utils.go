@@ -40,15 +40,26 @@ func checkTerminal() {
 	}
 }
 
-//
-// Set up terminal
+// We create two Liner instances.  One for the parser, and one for
+// any INPUT statements.  We do this because we want a scrollback
+// history for the parser, but not for user input.  We need to create
+// and destroy them in LIFO order, as the Close method is documented
+// as 'restoring the terminal to its previous state'.  This means that
+// if we create the parser instance, and then the 'input' instance, the
+// terminal state will go normal => raw => raw.  If we then Close them
+// in reverse order, we will see raw => raw => normal
 //
 
-func setupLiner() *liner.State {
+func setupLiners() {
+	g.parserLiner = setupLiner(false)
+	g.inputLiner = setupLiner(true)
+}
+
+func setupLiner(allowCtrlC bool) *liner.State {
 
 	l := liner.NewLiner()
 
-	l.SetMultiLineMode(true)
+	l.SetMultiLineMode(allowCtrlC)
 
 	return l
 }
@@ -226,7 +237,7 @@ func curPrintPos() int {
 
 func basicPrint(msg string, ioch int, checkZone bool) {
 
-	var f *os.File = os.Stdout
+	f := os.Stdout
 
 	//
 	// Do not allow formatted output to a record file!
@@ -842,7 +853,7 @@ func colorizeString(str string, tloc *yySymLoc, esc string) string {
 	s := uint16(tloc.pos.column) - 1
 	e := uint16(tloc.end.column)
 
-	return replaceSubstring(str, s, e, esc+str[s:e]+colorReset)
+	return replaceSubstring(str, s, e, esc+str[s:e]+colorResetSeq)
 }
 
 //
