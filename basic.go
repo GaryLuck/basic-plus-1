@@ -2285,6 +2285,9 @@ func spawnUserFunction(stmt *stmtNode) any {
 	default:
 		unexpectedTypeError(resp)
 
+	case nil:
+		panic(&crawloutException{true})
+
 	case float64:
 		return resp.(float64)
 
