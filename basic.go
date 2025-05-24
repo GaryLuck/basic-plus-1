@@ -2435,7 +2435,6 @@ func executeEdit() {
 
 	if editor == "" {
 		runtimeError("EDITOR not set")
-
 	}
 
 	if cmd, err = exec.LookPath(editor); err != nil {
@@ -2475,7 +2474,7 @@ func executeEdit() {
 	//
 
 	if _, _, err = syscall.StartProcess(cmd, args, pa); err != nil {
-		runtimeError(cmd + " " + err.Error())
+		editError(cmd + " " + err.Error())
 	}
 
 	//
@@ -2483,9 +2482,9 @@ func executeEdit() {
 	//
 
 	if _, err = syscall.Wait4(-1, &wstatus, 0, nil); err != nil {
-		runtimeError(err.Error())
+		editError(err.Error())
 	} else if wstatus != 0 {
-		runtimeError(fmt.Sprintf("%v failed - status %v", editor, wstatus))
+		editError(fmt.Sprintf("%v failed - status %v", editor, wstatus))
 	}
 
 	//
@@ -2515,6 +2514,17 @@ func executeEdit() {
 	//
 
 	executeOld(g.programFilename)
+}
+
+//
+// Reenable liners and throw the requested error
+//
+
+func editError(msg string) {
+
+	setupLiners()
+
+	runtimeError(msg)
 }
 
 //
