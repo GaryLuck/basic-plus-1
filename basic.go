@@ -605,7 +605,7 @@ func makeStmtNode(token int, operands ...*tokenNode) *stmtNode {
 	node := &stmtNode{token: token, line: g.yylex.line, operands: operands}
 
 	if g.traceDump {
-		godump.Dump(*node)
+		godump.Dump(node)
 	}
 
 	return node
@@ -661,7 +661,7 @@ func makeTokenNode(token int, operands ...any) *tokenNode {
 	}
 
 	if g.traceDump {
-		godump.Dump(*node)
+		godump.Dump(node)
 	}
 
 	return node
@@ -1386,7 +1386,7 @@ func createRpnExpr(tp *tokenNode) *tokenNode {
 	}
 
 	if g.traceDump {
-		godump.Dump(*rp)
+		godump.Dump(rp)
 	}
 
 	return rp
