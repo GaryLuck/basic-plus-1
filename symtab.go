@@ -59,8 +59,6 @@ func decodeVarToken(token any) (int, string) {
 
 func generateVarToken(token any) any {
 
-	//origToken := token
-
 	switch token.(type) {
 	default:
 		unexpectedTypeError(token)
@@ -180,7 +178,7 @@ func lookupSymbol(token any, dimStmt bool,
 	sym = g.symtabMap[mapIdx][name]
 
 	runtimeCheck(dimStmt || sym == nil || len(adims) == len(sym.dims),
-		"Attempt to change array dimensionality of %q", name)
+		"Attempt to change array dimensionality of %s", name)
 
 	return sym
 }
@@ -188,8 +186,8 @@ func lookupSymbol(token any, dimStmt bool,
 //
 // Create the requested symbol.  The arrays are created by utility routines
 // Complication: in BASIC, array subscripts run not from 1:N or 0:N-1,
-// but from 0:N.  This means we cannot use int16 variables for slice operations,
-// as the length of a matrix slice could be 32768
+// but from 0:N.  This means we cannot use int16 variables for slice
+// operations, as the length of a matrix slice could be 32768
 //
 
 func createSymbol(token any, adims ...int16) *symtabNode {
@@ -265,7 +263,6 @@ func processDimStmt(stmt *stmtNode) {
 			// NOP
 		}
 
-		dims = nil
 		dims = append(dims, int16(op.operands[0].tokenData.(int16)))
 
 		if num == 2 {

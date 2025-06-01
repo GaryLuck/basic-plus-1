@@ -804,17 +804,11 @@ func basicPlusIdent(ch rune, pos int) bool {
 	//
 	// 1. If token is in the keyword table, we're good.
 	// 2. If no '$' or '%' present, we have a floating variable.
-	// 3. Else if one only of '$' or '%' at the end of the token, we
-	//    have a string variable or integer variable.
+	// 3. Else if one only of '$' or '%' in the token, we have a
+	//    string variable or integer variable.
 	// 4. Else we have the invalid token situation.  Unfortunately, we
 	//    need to do these checks in the upper-level lexer, since that
 	//    can send up multiple tokens - getLexeme can't.
-	//
-	// NB: because of lack of state, we can't tell if '$' or '%' are
-	// legal here, because we have no way to tell if they are at the
-	// end of an identifier lexeme.  The higher-level lexer code has
-	// to check for that explicitly, once the scanner has returned a
-	// possible identifier
 	//
 
 	if pos == 0 {
@@ -843,13 +837,6 @@ func getTokenName(token int) string {
 	} else {
 		return strconv.FormatInt(int64(token), 10)
 	}
-}
-
-func yyllocInfo(yylloc *yySymLoc) string {
-	var res string
-
-	res = fmt.Sprintf("%d:%d", yylloc.pos.column, yylloc.end.column)
-	return res
 }
 
 func scanFilename(s *scanner.Scanner) Lval {

@@ -46,7 +46,7 @@ func checkTerminal() {
 // and destroy them in LIFO order, as the Close method is documented
 // as 'restoring the terminal to its previous state'.  This means that
 // if we create the parser instance, and then the 'input' instance, the
-// terminal state will go normal => raw => raw.  If we then Close them
+// terminal state will go normal => raw => raw.  If we then close them
 // in reverse order, we will see raw => raw => normal
 //
 
@@ -200,13 +200,6 @@ func myPrintln(l ...any) {
 	resetPrint(false)
 
 	fmt.Println(l...)
-}
-
-func myPrintf(f string, args ...any) {
-
-	resetPrint(false)
-
-	fmt.Printf(f, args...)
 }
 
 func mySprintf(f string, args ...any) string {
@@ -913,6 +906,10 @@ func executeTrace(sw *tokenNode) {
 				fmt.Println("enabled")
 			}
 			tracedVarsMap[symName] = !tracedVarsMap[symName]
+
+		case DUMP:
+			g.traceDump = !g.traceDump
+			fmt.Printf("toggling traceDump %s\n", switchSetting(g.traceDump))
 
 		case EXEC:
 			g.traceExec = !g.traceExec

@@ -281,3 +281,7 @@ mode file.
 Add an 'edit' command that allows editing the current (saved) program
 using the editor defined by the environment variable EDITOR.
 
+Add a debug switch to print interpreter nodes.
+
+Dynamically modify number of print zones when window is resize.
+

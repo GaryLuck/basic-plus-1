@@ -134,7 +134,8 @@ func prtuFormat(num float64, info any) string {
 	// a float64 with more digits than will fit the mantissa,
 	// so punt if we see this!  This is 9007199254740992.
 	// We have to use 'f' instead of 'g' as the latter will convert
-	// any number > abs(999999) in exponential format :(
+	// any number > abs(999999) in exponential format, which is
+	// incompatible with DEC behavior
 	//
 
 	if exponential {
@@ -209,7 +210,7 @@ func prtuFormat(num float64, info any) string {
 		}
 
 		//
-		// If num has an integer but the format field specifies
+		// If num is an integer but the format field specifies
 		// one or more digits after the decimal, append as many
 		// '0' characters as needed
 		//

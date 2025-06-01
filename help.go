@@ -44,6 +44,9 @@ func executeHelp(targ *tokenNode) {
 	case DENORM:
 		fmt.Println("Toggle denormalized floating point mode")
 
+	case DUMP:
+		fmt.Println("Tottle dumping of interpreter structures")
+
 	case EDIT:
 		fmt.Println("Invoke the editor defined by the environment")
 		fmt.Println("variable EDITOR on the current (saved) program")
@@ -81,14 +84,16 @@ func executeHelp(targ *tokenNode) {
 			" new filename")
 
 	case STATS:
-		fmt.Println("Toggle printing execution statistics when user" +
+		fmt.Println("Toggle printing of execution statistics when user" +
 			" program stops")
 
 	case TRACE:
-		fmt.Println("Toggle tracing of user statement execution" +
-			" or variable modification")
-		fmt.Println("\ttrace exec")
-		fmt.Println("\ttrace vars")
-		fmt.Println("\ttrace <variable name>")
+		fmt.Println("toggle tracing of")
+		fmt.Println()
+
+		fmt.Println("\tdump - intrepreter structures")
+		fmt.Println("\texec - statement execution")
+		fmt.Println("\tvars - all variable modifications")
+		fmt.Println("\t<variable name> - specific variable modification")
 	}
 }

@@ -14,7 +14,8 @@ import (
 // NB: the CONT (continue) command in BASIC-PLUS assumes the program
 // structure has not changed.  So, if we insert or remove any statement
 // nodes, we need to reinitialize the run structure, so as to disallow
-// a CONT command
+// a CONT command.  We also nuke the active symbol table to remove any
+// leftover values
 //
 
 func stmtAvlTreeFirstInOrder() *stmtNode {

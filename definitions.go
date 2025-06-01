@@ -33,6 +33,8 @@ const maxStringLen = math.MaxInt16
 
 const maxVariableLen = 29
 
+const minWindowRows = 70
+
 const maxArrayMemory = (1024 * 1024 * 1000)
 
 const floatingPointMode = "IEEE-754 64-bit Floating Point"
@@ -49,7 +51,7 @@ const blockSize = 512
 
 // FIX THESE AT SOME POINT
 const yyFirsttok = ABS
-const yyLasttok = UNEG
+const yyLasttok = XOR
 
 const colorRedSeq = "\033[31m"
 const colorResetSeq = "\033[0m"
@@ -341,6 +343,7 @@ var g struct {
 	traceStack      bool
 	traceExec       bool
 	traceVars       bool
+	traceDump       bool
 }
 
 //
@@ -390,3 +393,22 @@ var enotopen = errors.New(ENOTOPEN)
 var eillegaliochannel = errors.New(EILLEGALIOCHANNEL)
 var einputerror = errors.New(EINPUTERROR)
 var eendoffile = errors.New(EENDOFFILE)
+
+var isStringMap map[int]bool
+var isNumericMap map[int]bool
+
+var bifsHack = []bifHack{{CHRS, "CHR$"}, {CVTFS, "CVTF$"},
+	{CVTIS, "CVT%$"}, {CVTSF, "CVT$F"}, {CVTSI, "CVT$%"},
+	{DATES, "DATE$"}, {NUMS, "NUM$"}, {SPACES, "SPACE$"},
+	{SWAPI, "SWAP%"}, {TIMES, "TIME$"}}
+
+var stringOps = []int{CONCAT, CHRS, CVTFS, CVTIS, DATES, FNSVAR,
+	LEFT, MID, NUMS, RIGHT, SCALL, SPACES, SRPN, STRING, SVAR,
+	TAB, TIMES}
+
+var numericOps = []int{ABS, AND, APPROX, ASCII, ATN, COS, CVTSF, CVTSI,
+	EQ, EQV, ERL, ERR, EXP, FIX, FLOAT, FNFVAR, FNIVAR, FVAR, GE, GT,
+	IMP, INT, INSTR, INTEGER, IVAR, LE, LEN, LOG, LOG10, LT, MINUS, OR,
+	NCALL, NE, NOT, NRPN, PI, POS, PLUS, POW, RND, SGN, SIN, SLASH, SQR,
+	STAR, STREQ, STRGE, STRGT, STRLE, STRLT, STRNE, SWAPI, TAN, TIME,
+	UNEG, VAL, XOR}

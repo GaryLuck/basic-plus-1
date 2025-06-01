@@ -191,7 +191,7 @@ func executeRenumber(tnode *tokenNode) {
 	}
 
 	//
-	// Phase 2: walk renumberNodeList, switch on the statement iomode,
+	// Phase 2: walk renumberNodeList, switch on the statement token,
 	// verifying that the target statement number actually exists
 	// (during normal processing, we don't bother doing this, but when
 	// renumbering, we don't want the target statement number to be zero
@@ -315,9 +315,8 @@ func executeRenumber(tnode *tokenNode) {
 	}
 
 	//
-	// If modified == false, nothing would change, so don't bother
+	// If modified is false, nothing would change, so don't bother
 	// redoing the AVL tree, and especially, don't bother marking
-
 	// the program as modified, which would force the user to take
 	// action before they can exit
 	//
