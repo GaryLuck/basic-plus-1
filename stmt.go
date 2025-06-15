@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/danswartzendruber/avl"
 )
 
@@ -42,7 +43,7 @@ func stmtAvlTreeInsert(stmt *stmtNode, cmp avl.CmpFuncNode) {
 
 	p := avl.AvlTreeInsert(&g.program, &stmt.avl, stmt, cmp)
 	if p != nil {
-		fatalError("Stmt %d already in tree???", stmt.stmtNo)
+		fatalError(fmt.Sprintf("Stmt %d already in tree???", stmt.stmtNo))
 	}
 
 	// If it's an END statement, set the global

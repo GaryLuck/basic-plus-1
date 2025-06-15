@@ -299,8 +299,6 @@ type run struct {
 	ioTimeout     int16
 }
 
-type myWrite func([]byte) (int, error)
-
 type window struct {
 	rows int
 	cols int
@@ -383,16 +381,10 @@ var tracedVarsMap map[string]bool
 
 // Various BASIC-PLUS errors
 
-var eillegalfilename = errors.New(EILLEGALFILENAME)
-var efileinuse = errors.New(EFILEINUSE)
-var efilenotfound = errors.New(EFILENOTFOUND)
-var ealreadyopen = errors.New(EALREADYOPEN)
-var eprotectionviolation = errors.New(EPROTECTIONVIOLATION)
-var einvaliddevice = errors.New(EINVALIDDEVICE)
-var enotopen = errors.New(ENOTOPEN)
-var eillegaliochannel = errors.New(EILLEGALIOCHANNEL)
-var einputerror = errors.New(EINPUTERROR)
-var eendoffile = errors.New(EENDOFFILE)
+var errFilenotfound = errors.New(EFILENOTFOUND)               //nolint:staticcheck
+var errProtectionviolation = errors.New(EPROTECTIONVIOLATION) //nolint:staticcheck
+var errInvaliddevice = errors.New(EINVALIDDEVICE)             //nolint:staticcheck
+var errEndoffile = errors.New(EENDOFFILE)                     //nolint:staticcheck
 
 var isStringMap map[int]bool
 var isNumericMap map[int]bool

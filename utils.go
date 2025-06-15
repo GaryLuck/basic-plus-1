@@ -10,7 +10,6 @@ import (
 	"golang.org/x/term"
 	"io"
 	"io/fs"
-	"io/ioutil"
 	"math"
 	"os"
 	"runtime"
@@ -80,7 +79,7 @@ func cleanupLiners() {
 func cleanupLiner(linerState **liner.State) {
 
 	if *linerState != nil {
-		(*linerState).Close()
+		_ = (*linerState).Close()
 		*linerState = nil
 	}
 }
@@ -112,12 +111,15 @@ func readLine(l *liner.State, prompt string, history bool) (string, bool) {
 		runtimeCheck((l != g.inputLiner) || (err != liner.ErrPromptAborted),
 			EINTERRUPTED)
 
-		if err == io.EOF {
-			return "", true
-		} else if err == liner.ErrTimedOut {
-			runtimeError(ETIMEOUT)
-		} else {
+		switch err {
+		default:
 			crash(fmt.Sprintf("readLine error: %q\n", err)) // not useful?
+
+		case io.EOF:
+			return "", true
+
+		case liner.ErrTimedOut:
+			runtimeError(ETIMEOUT)
 		}
 	}
 
@@ -180,7 +182,7 @@ func trimWhitespace(s string) string {
 			if !lastWasBlank {
 				lastWasBlank = true
 				dst = append(dst, byte(' '))
-			} else {
+			} else { // nolint:staticcheck
 				// extra whitespace character - discard
 			}
 		} else {
@@ -309,7 +311,7 @@ func basicFormat(x any) string {
 
 	w := zoneWidth - 2
 
-	switch x.(type) {
+	switch x := x.(type) {
 	default:
 		unexpectedTypeError(x)
 
@@ -320,7 +322,7 @@ func basicFormat(x any) string {
 		// never be required
 		//
 
-		retBuf = strconv.FormatInt(int64(x.(int16)), 10)
+		retBuf = strconv.FormatInt(int64(x), 10)
 
 	case float64:
 
@@ -331,7 +333,7 @@ func basicFormat(x any) string {
 		// something like '123.'
 		//
 
-		fltStr := strconv.FormatFloat(x.(float64), 'g', w, 64)
+		fltStr := strconv.FormatFloat(x, 'g', w, 64)
 		fltParts := strings.Split(fltStr, "e")
 
 		switch len(fltParts) {
@@ -499,13 +501,13 @@ func openFileFull(filename string, iomode int, textMode bool) (*file, error) {
 	}
 
 	//
-	// Stat the filename - efilenotfound is OK
+	// Stat the filename - errFilenotfound is OK
 	//
 
 	if finfo, err = os.Stat(filename); err != nil {
-		err = mapOSError(err)
+		return nil, mapOSError(err)
 	} else if !finfo.Mode().IsRegular() {
-		err = einvaliddevice
+		return nil, errInvaliddevice
 	} else {
 		switch err {
 		default:
@@ -535,9 +537,9 @@ func openFileFull(filename string, iomode int, textMode bool) (*file, error) {
 				of.fileType = printFile
 			}
 
-		case efilenotfound:
+		case errFilenotfound:
 
-			// If efilenotfound and iomode does not allow writing, bail!
+			// If errFilenotfound and iomode does not allow writing, bail!
 
 			if (iomode & IOWRITE) == 0 {
 				return nil, err
@@ -586,7 +588,9 @@ func fileExists(filename string) bool {
 
 func closeFile(file **file) {
 
-	(*file).osFile.Close()
+	if err := (*file).osFile.Close(); err != nil {
+		fatalError(err.Error())
+	}
 	*file = nil
 }
 
@@ -597,7 +601,8 @@ func fileSize(file *file) int64 {
 	finfo, err := g.programFile.osFile.Stat()
 	if err != nil {
 		iErr := err.(*os.PathError)
-		runtimeError("Cannot stat %q (%s)", name, iErr.Err.Error())
+		runtimeError(fmt.Sprintf("Cannot stat %q (%s)", name,
+			iErr.Err.Error()))
 	}
 
 	return finfo.Size()
@@ -648,21 +653,21 @@ func pluralize(str string, anum any) string {
 	var num int
 	retString := str
 
-	switch anum.(type) {
+	switch anum := anum.(type) {
 	default:
 		unexpectedTypeError(anum)
 
 	case int16:
-		num = int(anum.(int16))
-
-	case int:
-		num = anum.(int)
+		num = int(anum)
 
 	case int64:
-		num = int(anum.(int64))
+		num = int(anum)
 
 	case uint64:
-		num = int(anum.(uint64))
+		num = int(anum)
+
+	case int:
+		num = anum
 	}
 
 	//
@@ -716,7 +721,7 @@ func floatToInt(f float64) int {
 	return int(f)
 }
 
-func floatToInt64(f float64) int64 {
+func floatToInt64(f float64) int64 { //nolint:unused
 
 	runtimeCheck(f >= math.MinInt64 && f <= math.MaxInt64, EINTEGERERROR)
 
@@ -731,18 +736,18 @@ func anyToInt(a any) int {
 
 	var i int
 
-	switch a.(type) {
+	switch a := a.(type) {
 	default:
 		unexpectedTypeError(a)
 
 	case int:
-		i = a.(int)
+		i = a
 
 	case float64:
-		i = floatToInt(a.(float64))
+		i = floatToInt(a)
 
 	case int16:
-		i = int(a.(int16))
+		i = int(a)
 	}
 
 	return i
@@ -794,7 +799,7 @@ func getCPUInfo(divisor int64) (int64, int64) {
 		clktck /= divisor
 	}
 
-	contents, err := ioutil.ReadFile("/proc/self/stat")
+	contents, err := os.ReadFile("/proc/self/stat")
 	if err != nil {
 		panic(err)
 	}
@@ -941,14 +946,14 @@ func crash(msg string) {
 	if msg != "" {
 		fd, err := syscall.Dup(int(os.Stderr.Fd()))
 		if err == nil {
-			os.Stdout.Close()
-			os.Stderr.Close()
+			_ = os.Stdout.Close()
+			_ = os.Stderr.Close()
 			w = os.NewFile(uintptr(fd), "stdout on new fd")
 		} else {
 			w = os.Stderr
 		}
 
-		fmt.Fprintln(w, msg)
+		_, _ = fmt.Fprintln(w, msg)
 	}
 
 	os.Exit(1)
@@ -982,15 +987,15 @@ func mapOSError(err error) error {
 
 	if iErr, ok := err.(*os.PathError); ok {
 		if errors.Is(err, fs.ErrPermission) {
-			err = eprotectionviolation
+			err = errProtectionviolation
 		} else if errors.Is(err, fs.ErrNotExist) {
-			err = efilenotfound
+			err = errFilenotfound
 		} else {
 			err = iErr.Err
 		}
 	} else {
 		if err.Error() == "EOF" {
-			err = eendoffile
+			err = errEndoffile
 		}
 	}
 
@@ -1081,7 +1086,7 @@ func readRecord(of *file, ioch int) {
 	//	fmt.Printf("Read record %d from channel %d\n", of.recNo, ioch)
 
 	if _, err := of.osFile.Seek(osSeekOff, 0); err != nil {
-		runtimeError("Seek failure (%s)", err.Error())
+		runtimeError(fmt.Sprintf("Seek failure (%s)", err.Error()))
 	}
 
 	if _, err := of.osFile.Read(of.recBuf); err != nil {
@@ -1101,11 +1106,11 @@ func writeRecord(of *file, ioch int) {
 	fmt.Printf("Write record %d to channel %d\n", of.recNo, ioch)
 
 	if _, err := of.osFile.Seek(osSeekOff, 0); err != nil {
-		runtimeError("Seek failure (%s)", err.Error())
+		runtimeError(fmt.Sprintf("Seek failure (%s)", err.Error()))
 	}
 
 	if _, err := of.osFile.Write(of.recBuf); err != nil {
-		runtimeError("Write error (%s)", err.Error())
+		runtimeError(fmt.Sprintf("Write error (%s)", err.Error()))
 	}
 }
 
@@ -1123,7 +1128,7 @@ func setRecordFile(of *file) {
 	of.recBuf = make([]byte, blockSize)
 
 	if finfo, err := os.Stat(of.filename); err != nil {
-		runtimeError("Stat failed (%v)", mapOSError(err))
+		runtimeError(fmt.Sprintf("Stat failed (%v)", mapOSError(err)))
 	} else {
 		fileMode = finfo.Mode()
 	}
@@ -1131,6 +1136,6 @@ func setRecordFile(of *file) {
 	fileMode |= fs.ModeSticky
 
 	if err := os.Chmod(of.filename, fileMode); err != nil {
-		runtimeError("setRecordFile failed (%v)", err)
+		runtimeError(fmt.Sprintf("setRecordFile failed (%v)", err))
 	}
 }

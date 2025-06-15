@@ -179,7 +179,7 @@ func executeRenumber(tnode *tokenNode) {
 	for stmt := stmtAvlTreeFirstInOrder(); stmt != nil; stmt = stmtAvlTreeNextInOrder(stmt) {
 
 		if newStmtNo <= 0 {
-			runtimeError("Too many statements to renumber by %d\n", increment)
+			runtimeError(fmt.Sprintf("Too many statements to renumber by %d\n", increment))
 		}
 
 		renumberNodeList = append(renumberNodeList, &renumberNode{stmt: stmt})
@@ -449,7 +449,8 @@ func executeRun(stmt *stmtNode, brief bool) {
 func executeRunInternal(state *procState, resetPrintZone, doStats bool) {
 
 	var arg any
-	var curStmt *stmtNode = state.stmt
+
+	curStmt := state.stmt
 
 	//
 	// Almost always, the routines executeStmt calls take one parameter,
@@ -522,16 +523,15 @@ func executeSleep(args []*tokenNode) {
 
 	val := evaluateRpnExpr(arg0, false)
 
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
 	case int16:
-		sleepVal = val.(int16)
+		sleepVal = val
 
 	case float64:
-		f64 := val.(float64)
-		sleepVal = floatToInt16(f64)
+		sleepVal = floatToInt16(val)
 	}
 
 	runtimeCheck(sleepVal >= 1, "Invalid sleep time")
@@ -549,19 +549,18 @@ func executeWait(args []*tokenNode) {
 
 	val := evaluateRpnExpr(arg0, false)
 
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
 	case int16:
-		waitVal = val.(int16)
+		waitVal = val
 		runtimeCheck(waitVal >= 0, "Invalid wait time")
 
 	case float64:
-		f64 := val.(float64)
-		runtimeCheck(f64 >= float64(0) && f64 <= float64(math.MaxInt16),
+		runtimeCheck(val >= float64(0) && val <= float64(math.MaxInt16),
 			"Invalid wait time")
-		waitVal = int16(f64)
+		waitVal = int16(val)
 	}
 
 	r.ioTimeout = waitVal
@@ -641,9 +640,10 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 	var dims, lhsDims []int16
 	var sub2 int16
 	var intRes bool
-	var stackp *rpnStack = &state.stack
 	var idx int
 	var t, zeroTime time.Time
+
+	stackp := &state.stack
 
 	//
 	// Walk the token list, pushing, popping and operating as required
@@ -653,7 +653,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 		item := state.expr[idx]
 		idx++
 
-		switch item.(type) {
+		switch item := item.(type) {
 		case fnfvarToken, fnivarToken, fnsvarToken:
 			rpnPush(stackp, item)
 
@@ -661,22 +661,22 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 			rpnPush(stackp, item)
 
 		case float64:
-			rpnPush(stackp, item.(float64))
+			rpnPush(stackp, item)
 
 		case int16:
-			rpnPush(stackp, item.(int16))
+			rpnPush(stackp, item)
 
 		case string:
-			rpnPush(stackp, item.(string))
+			rpnPush(stackp, item)
 
 		//
 		// Operator tokens are GO 'int' values
 		//
 
 		case int:
-			switch item.(int) {
+			switch item {
 			default:
-				unexpectedTokenError(item.(int))
+				unexpectedTokenError(item)
 
 			case ABS:
 				ret, intRes = rpnPopNumber(stackp)
@@ -734,7 +734,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				for j := 0; j < 8; j++ {
 					bs[j] = byte(ui >> (56 - j*8))
 				}
-				rpnPushString(stackp, fmt.Sprintf("%s", bs))
+				rpnPushString(stackp, string(bs))
 
 			case CVTIS:
 				i := rpnPopInt16(stackp)
@@ -1000,7 +1000,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				idx := rpnPopInt16(stackp)
 				str := rpnPopString(stackp)
 				checkStringIndex(str, idx)
-				rpnPush(stackp, str[idx-1:len(str)])
+				rpnPush(stackp, str[idx-1:])
 
 			case RND:
 				rpnPush(stackp, rand.Float64())
@@ -1087,7 +1087,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				// to append sub2 after sub1.  Everything else just falls
 				// into place automatically
 
-				if item.(int) == SUBSCR2 {
+				if item == SUBSCR2 {
 					dims = append(dims, sub2)
 				}
 
@@ -1131,7 +1131,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 				iomode := rpnPopInt16(stackp)
 				switch iomode {
 				default:
-					runtimeError("Invalid iomode %d", iomode)
+					runtimeError(fmt.Sprintf("Invalid iomode %d", iomode))
 
 				case 0:
 					//
@@ -1206,7 +1206,8 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 
 	switch len(stackp.entries) {
 	default:
-		fatalError("%d items left on RPN stack", len(stackp.entries))
+		fatalError(fmt.Sprintf("%d items left on RPN stack",
+			len(stackp.entries)))
 
 	case 0:
 		fatalError("RPN stack is empty")
@@ -1273,7 +1274,7 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 
 			if !intRes {
 				f := ret.(float64)
-				if f == 0.0 || f == -0.0 {
+				if f == 0.0 {
 					ret = float64(0.0)
 				} else {
 					rpnPush(stackp, f)
@@ -1631,7 +1632,7 @@ func executeGet(args []*tokenNode) {
 	}
 
 	fldp := r.fieldMap[ioch]
-	runtimeCheck(fldp != nil, "No field for channel %d\n", ioch)
+	runtimeCheck(fldp != nil, fmt.Sprintf("No field for channel %d\n", ioch))
 
 	//
 	// If we were passed a record number, use it, otherwise bump
@@ -1692,7 +1693,7 @@ func executePut(args []*tokenNode) {
 	}
 
 	fldp := r.fieldMap[ioch]
-	runtimeCheck(fldp != nil, "No field for channel %d\n", ioch)
+	runtimeCheck(fldp != nil, fmt.Sprintf("No field for channel %d\n", ioch))
 
 	//
 	// If we were passed a record number, use it, otherwise bump
@@ -1801,7 +1802,6 @@ func executeField(args []*tokenNode) {
 }
 
 func executeRandomize() {
-	rand.Seed(time.Now().UnixNano())
 }
 
 //
@@ -1834,8 +1834,8 @@ func executeChange(curStmt *stmtNode) {
 
 	numOperands := len(curStmt.operands)
 
-	basicAssert(numOperands == 2, "CHANGE expected 2 operands got %d",
-		numOperands)
+	basicAssert(numOperands == 2,
+		fmt.Sprintf("CHANGE expected 2 operands got %d", numOperands))
 
 	op0 := curStmt.operands[0]
 	op1 := curStmt.operands[1]
@@ -1940,7 +1940,8 @@ func executeFor(curStmt *stmtNode, arg any) *procState {
 	var fsIdx int
 	var lastToken int
 	var stmt *stmtNode
-	var ret *procState = &procState{}
+
+	ret := &procState{}
 
 	// arg might be nil so default to false
 	iterating, _ := arg.(bool)
@@ -2149,12 +2150,13 @@ func executeRead(curStmt *stmtNode) {
 func executeInput(args []*tokenNode) {
 
 	var doPair bool
-	var prompt string = executePrompt
 	var sym *symtabNode
 	var nextOp *tokenNode
 	var inputLine string
 	var inputToken string
 	var ioch int
+
+	prompt := executePrompt
 
 	//
 	// Ugliness forced on us by the BASIC-PLUS manual.  As we scan
@@ -2320,7 +2322,9 @@ func readInputLine(ioch int, prompt string) string {
 	var err error
 
 	if ioch == 0 {
-		g.inputLiner.SetTimeout(r.ioTimeout)
+		if err = g.inputLiner.SetTimeout(r.ioTimeout); err != nil {
+			fatalError(err.Error())
+		}
 		input, _ = readLine(g.inputLiner, prompt, false)
 	} else {
 		of := getOpenFile(ioch)
@@ -2628,7 +2632,7 @@ func processLhs(lval, rval any) {
 
 	switch sym.vType {
 	default:
-		fatalError("Invalid symbol type %d", sym.vType)
+		fatalError(fmt.Sprintf("Invalid symbol type %d", sym.vType))
 
 	case FVAR:
 		if isInt(rval) {
@@ -2662,7 +2666,8 @@ func executeOnError(args []*tokenNode) {
 		checkStmtTargetScope(targetStmtNo)
 		targetStmt := stmtAvlTreeLookup(targetStmtNo, cmpInt16Key)
 		runtimeCheck(targetStmt != nil,
-			"ON ERROR GOTO with non-existent statement %d", targetStmtNo)
+			fmt.Sprintf("ON ERROR GOTO with non-existent statement %d",
+				targetStmtNo))
 	}
 
 	r.onErrorStmtNo = targetStmtNo
@@ -2686,7 +2691,7 @@ func executeOpen(args []*tokenNode) {
 
 	switch iomode {
 	default:
-		fatalError("Invalid iomode == %0x\n", iomode)
+		fatalError(fmt.Sprintf("Invalid iomode == %0x\n", iomode))
 
 	case IOREAD:
 		basFileOk = true
@@ -2739,12 +2744,15 @@ func executeOn(curStmt *stmtNode) *stmtNode {
 	op := curStmt.operands[idx]
 	checkStmtTargetScope(op.tokenData.(int16))
 
-	if curStmt.token == ONGOTO {
-		ret = executeGoto(op)
-	} else if curStmt.token == ONGOSUB {
-		ret = executeGosub(op)
-	} else {
+	switch curStmt.token {
+	default:
 		unexpectedTokenError(curStmt.token)
+
+	case ONGOTO:
+		ret = executeGoto(op)
+
+	case ONGOSUB:
+		ret = executeGosub(op)
 	}
 
 	return ret
@@ -2755,7 +2763,8 @@ func executeGoto(tnode *tokenNode) *stmtNode {
 	stmtNo := tnode.tokenData.(int16)
 
 	stmt := stmtAvlTreeLookup(stmtNo, cmpInt16Key)
-	runtimeCheck(stmt != nil, "GOTO to non-existent statement %d", stmtNo)
+	runtimeCheck(stmt != nil,
+		fmt.Sprintf("GOTO to non-existent statement %d", stmtNo))
 
 	return stmt
 }
@@ -2765,8 +2774,9 @@ func executeGosub(tnode *tokenNode) *stmtNode {
 	targetStmtNo := tnode.tokenData.(int16)
 	targetStmt := stmtAvlTreeLookup(targetStmtNo, cmpInt16Key)
 
-	runtimeCheck(targetStmt != nil, "GOSUB to non-existent statement %d",
-		targetStmtNo)
+	runtimeCheck(targetStmt != nil,
+		fmt.Sprintf("GOSUB to non-existent statement %d",
+			targetStmtNo))
 	runtimeCheck(len(r.gosubStack) < gosubStackMax, "GOSUB stack overflow")
 
 	r.gosubStack = append(r.gosubStack, r.curStmt)
@@ -2810,7 +2820,8 @@ func executeResume(tnode *tokenNode) *procState {
 
 	stmt := stmtAvlTreeLookup(stmtNo, cmpInt16Key)
 
-	runtimeCheck(stmt != nil, "RESUME to non-existent statement %d", stmtNo)
+	runtimeCheck(stmt != nil,
+		fmt.Sprintf("RESUME to non-existent statement %d", stmtNo))
 
 	return createExecutionState(stmt)
 }
@@ -2874,16 +2885,17 @@ func executeList(stmtList *tokenNode, brief bool) {
 
 func evaluateIntegerExpr(node *tokenNode) int {
 	res := evaluateNumericExpr(node)
-	switch res.(type) {
+
+	switch res := res.(type) {
 	default:
 		unexpectedTypeError(res)
 		panic(nil) // avoid compiler complaint
 
 	case int16:
-		return int(res.(int16))
+		return int(res)
 
 	case float64:
-		return floatToInt(res.(float64))
+		return floatToInt(res)
 	}
 }
 
@@ -2892,15 +2904,15 @@ func evaluateBooleanExpr(tnode *tokenNode) bool {
 	var f float64
 
 	expr := evaluateNumericExpr(tnode)
-	switch expr.(type) {
+	switch expr := expr.(type) {
 	default:
 		unexpectedTypeError(expr)
 
 	case float64:
-		f = expr.(float64)
+		f = expr
 
 	case int16:
-		f = float64(expr.(int16))
+		f = float64(expr)
 	}
 
 	if f != 0 {
@@ -2975,9 +2987,9 @@ func fetchForTerminationToken(tnode *tokenNode) int {
 	tokenList := tnode.tokenData.(tokenList)
 
 	token := tokenList[len(tokenList)-1]
-	switch token.(type) {
+	switch token := token.(type) {
 	default:
-		fatalError("Unexpected type %T\n", token)
+		fatalError(fmt.Sprintf("Unexpected type %T\n", token))
 		panic(nil) // avoid compiler complaint
 
 	case fvarToken, float64:
@@ -2987,7 +2999,7 @@ func fetchForTerminationToken(tnode *tokenNode) int {
 		return INTEGER
 
 	case int:
-		return token.(int)
+		return token
 	}
 }
 
@@ -3086,7 +3098,7 @@ func incrementLoopVar(fsp *forStackNode) {
 
 	switch sym.vType {
 	default:
-		fatalError("Invalid symbol type %d", sym.vType)
+		fatalError(fmt.Sprintf("Invalid symbol type %d", sym.vType))
 
 	case FVAR:
 		fval := fetchFloatVar(sym)
@@ -3102,8 +3114,19 @@ func incrementLoopVar(fsp *forStackNode) {
 		ival := fetchIntVar(sym)
 		istep := step.(int16)
 		itemp := int(ival) + int(istep)
-		runtimeCheck(!((istep > 0 && itemp > maxForInteger) ||
-			(istep < 0 && itemp < minForInteger)), EFOROVERFLOW)
+		good := true
+
+		if istep > 0 {
+			if itemp > maxForInteger {
+				good = false
+			}
+		} else if istep < 0 {
+			if itemp < minForInteger {
+				good = false
+			}
+		}
+
+		runtimeCheck(good, EFOROVERFLOW)
 
 		fsp.item[4] = ival
 		storeIntVar(sym, int16(itemp))
@@ -3130,7 +3153,7 @@ func restoreLoopVar(fsp *forStackNode) {
 
 	switch sym.vType {
 	default:
-		fatalError("Invalid symbol type %d", sym.vType)
+		fatalError(fmt.Sprintf("Invalid symbol type %d", sym.vType))
 
 	case FVAR:
 		storeFloatVar(sym, savedVal.(float64))
@@ -3188,7 +3211,7 @@ func checkLoopTermination(fsp *forStackNode) bool {
 
 	switch sym.vType {
 	default:
-		fatalError("Invalid symbol type %d", sym.vType)
+		fatalError(fmt.Sprintf("Invalid symbol type %d", sym.vType))
 
 	case FVAR:
 		loopVar := fetchFloatVar(sym)

@@ -289,7 +289,7 @@ line:
 
             switch sp.token {
             default:
-                 fatalError("%s in immediate mode", getTokenName(sp.token))
+                 unexpectedTokenError(sp.token)
 
             case BYE:
                  executeBye()

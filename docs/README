@@ -207,7 +207,7 @@ appending the null string to the second assignment to avoid this.
 This is gross and disgusting, not to mention unintuitive, and I can't
 imagine anyone relying on this behavior, so this is not implemented
 as documented.  I can only guess that this was due to some system
-softare implementation.
+software implementation.
 
 PRINT USING change: exponential format is documented as being four caret
 characters following the numeric field like '###^^^^'.  This is not correct

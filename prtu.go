@@ -9,7 +9,7 @@ import (
 
 func printUsing(ioch int, tokens []prtuToken, ops []any) {
 
-	var flen, tokIdx, opIdx int
+	var tokIdx, opIdx int
 	var line string
 
 	//
@@ -21,10 +21,7 @@ func printUsing(ioch int, tokens []prtuToken, ops []any) {
 	// cycle to the beginning of the token list
 	//
 
-	for {
-		if opIdx == len(ops) {
-			break
-		}
+	for opIdx < len(ops) {
 
 		//
 		// If we've reached the end of the format string and there
@@ -49,17 +46,16 @@ func printUsing(ioch int, tokens []prtuToken, ops []any) {
 		tok := tokens[tokIdx]
 		tokIdx++
 
-		switch tok.(type) {
+		switch tok := tok.(type) {
 		case prtuChar:
-			info := tok.(prtuChar)
-			line += info.ch
+			line += tok.ch
 			continue
 		}
 
 		op := ops[opIdx]
 		opIdx++
 
-		switch tok.(type) {
+		switch tok := tok.(type) {
 		default:
 			unexpectedTypeError(tok)
 
@@ -67,18 +63,10 @@ func printUsing(ioch int, tokens []prtuToken, ops []any) {
 			val, ok := op.(string)
 			runtimeCheck(ok, "String operand expected")
 
-			info := tok.(prtuString)
-			flen = info.len
-			val = copyString(val, flen, false)
-
-			line += val
+			line += copyString(val, tok.len, false)
 
 		case prtuNumeric:
-			val := prtuGetNumericFloat(op)
-
-			info := tok.(prtuNumeric)
-
-			line += prtuFormat(val, info)
+			line += prtuFormat(prtuGetNumericFloat(op), tok)
 		}
 	}
 
@@ -89,7 +77,7 @@ func printUsing(ioch int, tokens []prtuToken, ops []any) {
 
 func prtuGetNumericFloat(val any) float64 {
 
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
@@ -97,10 +85,10 @@ func prtuGetNumericFloat(val any) float64 {
 		runtimeError("Numeric operand expected")
 
 	case float64:
-		return val.(float64)
+		return val
 
 	case int16:
-		return float64(val.(int16))
+		return float64(val)
 	}
 
 	panic(nil) // avoid compiler complaint
@@ -327,20 +315,20 @@ func prtuParse(prtuCtl *prtuLexer) {
 			pch = prtuPeekch(prtuCtl)
 
 			//
-			// No decimal point - pseudo-integr
+			// No decimal point - pseudo-integer
 			//
 
 			if pch != '.' {
-				if pch == '-' {
+				switch pch {
+				case '-':
 					info.trailingMinus = true
 					prtuCtl.idx++
-				} else if pch == '^' {
+
+				case '^':
 					info.exponential = checkExponential(prtuCtl)
 				}
 
 				prtuSaveToken(prtuCtl, info)
-
-				break
 			}
 
 			prtuCtl.idx++
@@ -365,10 +353,12 @@ func prtuParse(prtuCtl *prtuLexer) {
 
 			pch = prtuPeekch(prtuCtl)
 
-			if pch == '-' {
+			switch pch {
+			case '-':
 				info.trailingMinus = true
 				prtuCtl.idx++
-			} else if pch == '^' {
+
+			case '^':
 				info.exponential = checkExponential(prtuCtl)
 			}
 

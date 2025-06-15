@@ -6,7 +6,6 @@ import (
 	"github.com/goforj/godump"
 	"golang.org/x/term"
 	"math"
-	"math/rand"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -90,8 +89,6 @@ func main() {
 }
 
 func initHacks() {
-
-	rand.Seed(time.Now().UnixNano())
 
 	//
 	// Unfortunately, goyacc won't let us define token names with a
@@ -196,7 +193,7 @@ func writeGoroutineStacks() {
 		return
 	}
 
-	pprof.Lookup("goroutine").WriteTo(dumpFile, 2)
+	_ = pprof.Lookup("goroutine").WriteTo(dumpFile, 2)
 
 	m := fmt.Sprintf("Dumping goroutine stacks to %v and exiting", name)
 
@@ -257,7 +254,8 @@ func decodePanic(e any) {
 	var panicFrame runtime.Frame
 	var panicCount int
 
-	switch e.(type) {
+	switch e := e.(type) {
+	//	switch e.(type) {
 	default:
 		//
 		// We got some kind of internally generated GO panic, so we have
@@ -319,19 +317,14 @@ func decodePanic(e any) {
 		// continue if requested
 		//
 
-		ce := e.(*crawloutException)
-		if !ce.continuable {
+		if !e.continuable {
 			r.curStmt = nil
 		}
 
 		r.fip = nil
 
 	case *basicErrorInfo:
-
-		be := e.(*basicErrorInfo)
-
-		fmt.Printf("%q at %s line %d\n", be.msg, filepath.Base(be.file),
-			be.line)
+		fmt.Printf("%q at %s line %d\n", e.msg, filepath.Base(e.file), e.line)
 
 		r.curStmt = nil
 		r.fip = nil
@@ -478,29 +471,19 @@ func printErrorLocStmt(stmt *stmtNode, msg string) {
 
 //
 // A couple of handy 'assert' functions
-// NB: the heavy lifting is done by fatalErrorInternal, which is
-// called by either fatalError or basicAssert.  We need to split
-// this out, as fatalErrorInternal needs to look back at the caller
-// of either fatalError or basicAssert, and there are other clients
-// who call fatalErrorInternal directly
 //
 
-func basicAssert(chk bool, f string, args ...any) {
+func basicAssert(chk bool, msg string) {
 
 	if !chk {
-		fatalErrorInternal(f, args...)
+		fatalError(msg)
 	}
 }
 
-func fatalError(f string, args ...any) {
-
-	fatalErrorInternal(f, args...)
-}
-
-func runtimeCheck(chk bool, f string, args ...any) {
+func runtimeCheck(chk bool, msg string) {
 
 	if !chk {
-		runtimeError(f, args...)
+		runtimeError(msg)
 	}
 }
 
@@ -514,9 +497,7 @@ func runtimeCheck(chk bool, f string, args ...any) {
 // case EINTERRUPTED though
 //
 
-func runtimeError(f string, args ...any) {
-
-	msg := fmt.Sprintf(f, args...)
+func runtimeError(msg string) {
 
 	runtimeErrorInternal(msg, createExecutionState(r.curStmt), getErrorNo(msg))
 }
@@ -564,9 +545,7 @@ func runtimeErrorInternal(msg string, state *procState, err int16) {
 // into the basicErrorInfo structure before calling panic
 //
 
-func fatalErrorInternal(f string, args ...any) {
-
-	msg := fmt.Sprintf(f, args...)
+func fatalError(msg string) {
 
 	//
 	// Make sure we close the program file (if open) before proceeding,
@@ -695,7 +674,7 @@ func saveProgram(file *file) {
 	for stmt := stmtAvlTreeFirstInOrder(); stmt != nil; {
 		if _, err := file.writer.WriteString(stmt.line + "\n"); err != nil {
 			iErr := err.(*os.PathError)
-			runtimeError("Unable to save %q (%v)", fname, iErr)
+			runtimeError(fmt.Sprintf("Unable to save %q (%v)", fname, iErr))
 		}
 
 		stmt = stmtAvlTreeNextInOrder(stmt)
@@ -704,7 +683,7 @@ func saveProgram(file *file) {
 	err := file.writer.Flush()
 	if err != nil {
 		iErr := err.(*os.PathError)
-		runtimeError("Unable to save %q (%v)", fname, iErr)
+		runtimeError(fmt.Sprintf("Unable to save %q (%v)", fname, iErr))
 	}
 }
 
@@ -987,7 +966,8 @@ func expressionType(tnode *tokenNode) int {
 
 	switch len(tnode.operands) {
 	default:
-		fatalError("Invalid number of operands (%d)", len(tnode.operands))
+		fatalError(fmt.Sprintf("Invalid number of operands (%d)",
+			len(tnode.operands)))
 
 	case 0, 1:
 		return FLOAT
@@ -1034,12 +1014,12 @@ func isString(node *tokenNode) bool {
 
 func isInt(value any) bool {
 
-	switch value.(type) {
+	switch value := value.(type) {
 	default:
 		unexpectedTypeError(value)
 
 	case lhsRetVal:
-		if value.(lhsRetVal).sym.vType == IVAR {
+		if value.sym.vType == IVAR {
 			return true
 		} else {
 			return false
@@ -1060,7 +1040,8 @@ func fetchOperands(curStmt *stmtNode) []*tokenNode {
 	ret := make([]*tokenNode, 0)
 
 	for i := 0; i < len(curStmt.operands); i++ {
-		basicAssert(curStmt.operands[i] != nil, "nil operand[%d]", i)
+		basicAssert(curStmt.operands[i] != nil,
+			fmt.Sprintf("nil operand[%d]", i))
 		ret = append(ret, curStmt.operands[i])
 	}
 
@@ -1069,12 +1050,12 @@ func fetchOperands(curStmt *stmtNode) []*tokenNode {
 
 func unexpectedTokenError(token int) {
 
-	fatalErrorInternal("Unexpected token %s", getTokenName(token))
+	fatalError(fmt.Sprintf("Unexpected token %s", getTokenName(token)))
 }
 
 func unexpectedTypeError(item any) {
 
-	fatalErrorInternal("Unexpected type %T", item)
+	fatalError(fmt.Sprintf("Unexpected type %T", item))
 }
 
 func checkSubscript(sub int16, maxSub int16) {
@@ -1100,15 +1081,17 @@ func checkInt16(msg string, n, low int64, yyloc *yySymLoc) {
 func checkStringLen(s string) {
 
 	runtimeCheck(len(s) <= maxStringLen,
-		"Maximum string length (%d) exceeded", maxStringLen)
+		fmt.Sprintf("Maximum string length (%d) exceeded", maxStringLen))
 }
 
 func checkStringIndex(s string, indx int16) {
 
 	sLen := int16(len(s))
 
-	runtimeCheck(indx >= 1, "string index (%d) too small", indx)
-	runtimeCheck(indx <= sLen, "string index (%d) too large", indx)
+	runtimeCheck(indx >= 1,
+		fmt.Sprintf("string index (%d) too small", indx))
+	runtimeCheck(indx <= sLen,
+		fmt.Sprintf("string index (%d) too large", indx))
 }
 
 func printStatistics() {
@@ -1333,8 +1316,8 @@ func lookupStmtInUserFunctionList(stmtNo int16) int {
 
 func processDataStmt(stmt *stmtNode) {
 
-	basicAssert(len(stmt.operands) == 1, "numOperands != 1 (%d)",
-		len(stmt.operands))
+	basicAssert(len(stmt.operands) == 1,
+		fmt.Sprintf("numOperands != 1 (%d)", len(stmt.operands)))
 
 	for tp := stmt.operands[0]; tp != nil; tp = tp.next {
 		switch tp.token {
@@ -1382,7 +1365,8 @@ func createRpnExpr(tp *tokenNode) *tokenNode {
 	} else if isString(tp) {
 		rp = makeSrpnTokenNode(tp)
 	} else {
-		fatalError("%s is neither numeric nor string", getTokenName(tp.token))
+		fatalError(fmt.Sprintf("%s is neither numeric nor string",
+			getTokenName(tp.token)))
 	}
 
 	if g.traceDump {
@@ -1529,9 +1513,9 @@ func createRpnExprInternal(tnode *tokenNode) tokenList {
 	return tl
 }
 
-func decodeRpnItem(item any) string {
+func decodeRpnItem(item any) string { // nolint:unused
 
-	switch item.(type) {
+	switch item := item.(type) {
 	default:
 		unexpectedTypeError(item)
 
@@ -1554,22 +1538,22 @@ func decodeRpnItem(item any) string {
 		return fmt.Sprintf("SVAR %s", getVarName(item))
 
 	case float64:
-		return fmt.Sprintf("FLOAT %g", item.(float64))
+		return fmt.Sprintf("FLOAT %g", item)
 
 	case int16:
-		return fmt.Sprintf("INT16 %d", item.(int16))
+		return fmt.Sprintf("INT16 %d", item)
 
 	case int:
-		return fmt.Sprintf("OP %s", getTokenName(item.(int)))
+		return fmt.Sprintf("OP %s", getTokenName(item))
 
 	case string:
-		return fmt.Sprintf("STRING %q", item.(string))
+		return fmt.Sprintf("STRING %q", item)
 	}
 
 	panic(nil) // avoid compiler complaint
 }
 
-func printRpnStack(stackp *rpnStack) {
+func printRpnStack(stackp *rpnStack) { // nolint:unused
 
 	if len(stackp.entries) == 0 {
 		fmt.Println("Stack is empty")
@@ -1579,12 +1563,12 @@ func printRpnStack(stackp *rpnStack) {
 	for i, item := range stackp.entries {
 		fmt.Print("<")
 
-		switch item.(type) {
+		switch item := item.(type) {
 		default:
 			fmt.Printf("%v", item)
 
 		case string:
-			fmt.Printf("%q", item.(string))
+			fmt.Printf("%q", item)
 
 		case svarToken:
 			fmt.Printf("%q", getVarName(item))
@@ -1623,18 +1607,14 @@ func rpnPushString(stackp *rpnStack, str string) {
 
 func rpnPop(stackp *rpnStack) any {
 
-	var tmp []any
-
 	slen := len(stackp.entries)
-
 	if slen == 0 {
 		fatalError("RPN stack underflow")
 	}
 
 	value := stackp.entries[slen-1]
 
-	tmp = append(tmp, stackp.entries[:slen-1]...)
-	stackp.entries = tmp
+	stackp.entries = stackp.entries[:slen-1]
 
 	return value
 }
@@ -1690,15 +1670,15 @@ func rpnPopFloat(stackp *rpnStack) float64 {
 	var f float64
 
 	val := rpnPopValue(stackp)
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
 	case float64:
-		f = val.(float64)
+		f = val
 
 	case int16:
-		f = float64(val.(int16))
+		f = float64(val)
 	}
 
 	return f
@@ -1731,15 +1711,15 @@ func rpnPopInt16(stackp *rpnStack) int16 {
 	var i int16
 
 	val := rpnPopValue(stackp)
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
 	case float64:
-		i = floatToInt16(val.(float64))
+		i = floatToInt16(val)
 
 	case int16:
-		i = val.(int16)
+		i = val
 	}
 
 	return i
@@ -1753,20 +1733,20 @@ func rpnPopInt16(stackp *rpnStack) int16 {
 // Otherwise throw an error.
 //
 
-func rpnPopInt64(stackp *rpnStack) int64 {
+func rpnPopInt64(stackp *rpnStack) int64 { // nolint:unused
 
 	var i int64
 
 	val := rpnPopValue(stackp)
-	switch val.(type) {
+	switch val := val.(type) {
 	default:
 		unexpectedTypeError(val)
 
 	case float64:
-		i = floatToInt64(val.(float64))
+		i = floatToInt64(val)
 
 	case int16:
-		i = int64(val.(int16))
+		i = int64(val)
 	}
 
 	return i
@@ -1931,7 +1911,7 @@ func computeSubs(sym *symtabNode, subs []int16) (int16, int16) {
 
 	switch len(subs) {
 	default:
-		fatalError("Invalid number of subscripts (%d)", len(subs))
+		fatalError(fmt.Sprintf("Invalid number of subscripts (%d)", len(subs)))
 
 	case 0:
 		return 0, 0
@@ -1951,7 +1931,7 @@ func computeSubs(sym *symtabNode, subs []int16) (int16, int16) {
 	panic(nil) // avoid compiler complaint
 }
 
-func printRpnState(state *procState) {
+func printRpnState(state *procState) { // nolint:unused
 
 	fmt.Println("**** RPN state *****")
 
@@ -1975,15 +1955,6 @@ func createExecutionState(stmt *stmtNode) *procState {
 	return &procState{stmt: stmt}
 }
 
-//
-// Build a procState structure with more context
-//
-
-func createExecutionStateFull(stmt *stmtNode, expr tokenList) *procState {
-
-	return &procState{stmt: stmt, expr: expr}
-}
-
 func resetRpnStack(stack *rpnStack) {
 
 	*stack = rpnStack{}
@@ -1996,36 +1967,35 @@ func resetRpnStack(stack *rpnStack) {
 
 func getVarName(arg any) string {
 
-	switch arg.(type) {
+	switch arg := arg.(type) {
 	default:
 		return ""
 
 	case fvarToken:
-		return string(arg.(fvarToken))
+		return string(arg)
 
 	case ivarToken:
-		return string(arg.(ivarToken))
+		return string(arg)
 
 	case svarToken:
-		return string(arg.(svarToken))
+		return string(arg)
 
 	case fnfvarToken:
-		return string(arg.(fnfvarToken))
+		return string(arg)
 
 	case fnivarToken:
-		return string(arg.(fnivarToken))
+		return string(arg)
 
 	case fnsvarToken:
-		return string(arg.(fnsvarToken))
+		return string(arg)
 
 	case *tokenNode:
-		node := arg.(*tokenNode)
-		switch node.token {
+		switch arg.token {
 		default:
-			unexpectedTokenError(node.token)
+			unexpectedTokenError(arg.token)
 
 		case FNFVAR, FNIVAR, FNSVAR, FVAR, IVAR, SVAR:
-			return node.tokenData.(string)
+			return arg.tokenData.(string)
 		}
 	}
 
@@ -2038,7 +2008,7 @@ func getVarName(arg any) string {
 
 func getBaseType(arg any) int {
 
-	switch arg.(type) {
+	switch arg := arg.(type) {
 	default:
 		unexpectedTypeError(arg)
 
@@ -2055,7 +2025,7 @@ func getBaseType(arg any) int {
 		return STRING
 
 	case *tokenNode:
-		token := arg.(*tokenNode).token
+		token := arg.token
 		switch token {
 		default:
 			unexpectedTokenError(token)
@@ -2084,20 +2054,20 @@ func callFunction(fn any, args rpnStack) any {
 
 	runtimeCheck(r.level < fnRecursionMax, "Function nesting exceeded")
 
-	switch fn.(type) {
+	switch fn := fn.(type) {
 	default:
 		unexpectedTypeError(fn)
 
 	case fnfvarToken:
-		fname = string(fn.(fnfvarToken))
+		fname = string(fn)
 		rpnToken = NRPN
 
 	case fnivarToken:
-		fname = string(fn.(fnivarToken))
+		fname = string(fn)
 		rpnToken = NRPN
 
 	case fnsvarToken:
-		fname = string(fn.(fnsvarToken))
+		fname = string(fn)
 		rpnToken = SRPN
 	}
 
@@ -2105,12 +2075,14 @@ func callFunction(fn any, args rpnStack) any {
 
 	defStmt := r.userDefMap[fname]
 
-	runtimeCheck(defStmt != nil, "Function %q has not been defined", fname)
+	runtimeCheck(defStmt != nil,
+		fmt.Sprintf("Function %q has not been defined", fname))
 
 	defNargs := len(defStmt.operands) - 2
 
-	runtimeCheck(defNargs == nargs, "%q called with %d %s but needs %d",
-		fname, nargs, pluralize("argument", nargs), defNargs)
+	runtimeCheck(defNargs == nargs,
+		fmt.Sprintf("%q called with %d %s but needs %d",
+			fname, nargs, pluralize("argument", nargs), defNargs))
 
 	params := fetchUserDefParams(fname)
 
@@ -2134,7 +2106,7 @@ func callFunction(fn any, args rpnStack) any {
 			paramType := params.paramTypes[ix]
 
 			runtimeCheck(argType == paramType,
-				"Type mismatch for parameter %q", paramName)
+				fmt.Sprintf("Type mismatch for parameter %q", paramName))
 		}
 
 		//
@@ -2158,9 +2130,7 @@ func callFunction(fn any, args rpnStack) any {
 			}
 		}
 
-		res = evaluateRpnExpr(makeTokenNode(rpnToken, newTl), false)
-
-		return res
+		return evaluateRpnExpr(makeTokenNode(rpnToken, newTl), false)
 	}
 
 	//
@@ -2191,17 +2161,12 @@ func callFunction(fn any, args rpnStack) any {
 		paramType := params.paramTypes[ix]
 
 		runtimeCheck(argType == paramType,
-			"Type mismatch for parameter %q", paramName)
+			fmt.Sprintf("Type mismatch for parameter %q", paramName))
 
 		udStkNode.paramMap[paramName] = args.entries[ix]
 	}
 
 	r.userDefStack = append(r.userDefStack, udStkNode)
-
-	if defStmt.operands[1] != nil {
-		res = evaluateRpnExpr(defStmt.operands[1], false)
-		r.level--
-	}
 
 	res = spawnUserFunction(defStmt)
 
@@ -2218,8 +2183,7 @@ func callFunction(fn any, args rpnStack) any {
 
 func copyTokenList(oldTl tokenList) tokenList {
 
-	newTl := tokenList{}
-	newTl = make([]any, len(oldTl))
+	newTl := make([]any, len(oldTl))
 	copy(newTl, oldTl)
 
 	return newTl
@@ -2259,7 +2223,7 @@ func spawnUserFunction(stmt *stmtNode) any {
 	// return it to our caller
 	//
 
-	switch resp.(type) {
+	switch resp := resp.(type) {
 	default:
 		unexpectedTypeError(resp)
 
@@ -2267,13 +2231,13 @@ func spawnUserFunction(stmt *stmtNode) any {
 		panic(&crawloutException{true})
 
 	case float64:
-		return resp.(float64)
+		return resp
 
 	case int16:
-		return resp.(int16)
+		return resp
 
 	case string:
-		return resp.(string)
+		return resp
 	}
 
 	panic(nil) // avoid compiler complaint
@@ -2438,7 +2402,7 @@ func executeEdit() {
 	//
 
 	if _, err = g.parserLiner.WriteHistory(&savedHistory); err != nil {
-		fatalError("Unable to save command history (%v)", err)
+		fatalError(fmt.Sprintf("Unable to save command history (%v)", err))
 	}
 
 	//
@@ -2481,7 +2445,7 @@ func executeEdit() {
 	fmt.Println(savedHistory)
 
 	if _, err = g.parserLiner.ReadHistory(&savedHistory); err != nil {
-		fatalError("Unable to restore command history (%v)", err)
+		fatalError(fmt.Sprintf("Unable to restore command history (%v)", err))
 	}
 
 	//

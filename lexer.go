@@ -144,7 +144,7 @@ func errorLocFull(l string, e string, doPanic bool, yylloc ...*yySymLoc) {
 
 	switch len(yylloc) {
 	default:
-		fatalError("Too many location tokens (%d)", len(yylloc))
+		fatalError(fmt.Sprintf("Too many location tokens (%d)", len(yylloc)))
 
 	case 0:
 		// NOP
@@ -438,15 +438,16 @@ func myScanner(yylex *Lexer) {
 
 func prevTokenFixup(tok int) int {
 
-	if tok == COMMA {
-		return TRAILING_COMMA
-	} else if tok == SEMI {
-		return TRAILING_SEMI
-	} else {
-		msg := fmt.Sprintf("tok == %v", tok)
-		panic(msg)
-	}
+	switch tok {
+	default:
+		panic(fmt.Sprintf("tok == %v", tok))
 
+	case COMMA:
+		return TRAILING_COMMA
+
+	case SEMI:
+		return TRAILING_SEMI
+	}
 }
 
 func getLexeme(s *scanner.Scanner) (Lval, bool) {
@@ -825,7 +826,8 @@ func basicPlusIdent(ch rune, pos int) bool {
 
 func getTokenNameAddr(token int) *string {
 
-	basicAssert(token >= yyFirsttok, "invalid token %d\n", token)
+	basicAssert(token >= yyFirsttok,
+		fmt.Sprintf("invalid token %d\n", token))
 
 	return &yyToknames[token-yyFirsttok+3]
 }
@@ -886,7 +888,7 @@ func getTokenLoc(s *scanner.Scanner) yySymLoc {
 
 	var symLoc yySymLoc
 
-	symLoc.pos.column = s.Position.Column
+	symLoc.pos.column = s.Column
 	symLoc.end.column = s.Pos().Column - 1
 
 	if symLoc.end.column < symLoc.pos.column {

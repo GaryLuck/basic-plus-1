@@ -178,7 +178,7 @@ func lookupSymbol(token any, dimStmt bool,
 	sym = g.symtabMap[mapIdx][name]
 
 	runtimeCheck(dimStmt || sym == nil || len(adims) == len(sym.dims),
-		"Attempt to change array dimensionality of %s", name)
+		fmt.Sprintf("Attempt to change array dimensionality of %s", name))
 
 	return sym
 }
@@ -211,7 +211,7 @@ func createSymbol(token any, adims ...int16) *symtabNode {
 
 	switch int16(len(dims)) {
 	default:
-		fatalError("Too many dimensions (%d)", len(dims))
+		fatalError(fmt.Sprintf("Too many dimensions (%d)", len(dims)))
 
 	case 0:
 		bounds[0] = 1
@@ -249,7 +249,8 @@ func processDimStmt(stmt *stmtNode) {
 
 	for op := stmt.operands[0]; op != nil; op = op.next {
 		var dims []int16
-		var num int = len(op.operands)
+
+		num := len(op.operands)
 
 		if num == 0 {
 			fatalError("DIM variable with no dimensions!")
