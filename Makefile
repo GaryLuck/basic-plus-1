@@ -21,6 +21,5 @@ clean:
 	rm -f $(EXECUTABLE) parser.go y.output
 
 git:
-	rsync -a $(EXECUTABLE) $(DOCS) $(GO_FILES) Makefile $(GITPATH)
-
-
+	rsync -a $(EXECUTABLE) $(DOCS) $(GO_FILES) Makefile \
+		go.mod go.sum $(GITPATH)
