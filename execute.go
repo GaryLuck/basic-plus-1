@@ -82,7 +82,8 @@ func executeNew(tnode *tokenNode) {
 		checkOverwrite(name)
 	}
 
-	g.program = nil // yes, it really is that simple :)
+	initAvl()
+
 	g.endStmtNo = 0
 
 	initSymbolTable()
@@ -113,7 +114,8 @@ func executeOld(filename string) {
 
 	initializeRun()
 
-	g.program = nil // yes, it really is that simple :)
+	initAvl()
+
 	g.endStmtNo = 0
 
 	initSymbolTable()
@@ -332,7 +334,8 @@ func executeRenumber(tnode *tokenNode) {
 	// string in each statement node, which is non-trivial :)
 	//
 
-	g.program = nil
+	initAvl()
+
 	g.endStmtNo = 0
 
 	for _, rnl := range renumberNodeList {

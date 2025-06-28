@@ -321,7 +321,7 @@ var r run
 //
 
 var g struct {
-	program         *avl.AvlNode
+	program         *avl.AvlTree
 	symtabMap       [2]map[string]*symtabNode
 	yylex           *Lexer
 	parserLiner     *liner.State

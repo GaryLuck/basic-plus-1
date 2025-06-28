@@ -1,9 +1,9 @@
-module github.com/danswartzendruber/basic-plus
+module go.mod
 
 go 1.23.9
 
 require (
-	github.com/danswartzendruber/avl v1.0.0
+	github.com/danswartzendruber/avl v1.1.0
 	github.com/danswartzendruber/liner v1.0.0
 	github.com/goforj/godump v1.2.0
 	github.com/tklauser/go-sysconf v0.3.15

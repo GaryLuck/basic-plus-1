@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"github.com/danswartzendruber/avl"
 	"github.com/goforj/godump"
 	"golang.org/x/term"
 	"math"
@@ -65,6 +66,8 @@ func main() {
 	clearScreen()
 
 	printVersionInfo()
+
+	initAvl()
 
 	//
 	// Run the signal handling code in a goroutine
@@ -142,6 +145,11 @@ func initParser() {
 	yyErrorVerbose = true
 
 	initSymbolTable()
+}
+
+func initAvl() {
+
+	g.program = avl.NewAvlTree()
 }
 
 func initMaps() {

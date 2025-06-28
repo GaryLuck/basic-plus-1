@@ -9,7 +9,7 @@ GITPATH = ~/git/basic-plus
 all: basic-plus
 
 $(EXECUTABLE): $(GO_FILES) parser.go
-	go fmt && CGO_ENABLED=0 go build -ldflags=$(LDFLAGS)
+	go fmt && CGO_ENABLED=0 go build -ldflags=$(LDFLAGS) -o $(EXECUTABLE)
 
 parser.go: parser.y
 	goyacc -o parser.go parser.y

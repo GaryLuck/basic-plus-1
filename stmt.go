@@ -21,7 +21,7 @@ import (
 
 func stmtAvlTreeFirstInOrder() *stmtNode {
 
-	p := avl.AvlTreeFirstInOrder(g.program)
+	p := g.program.AvlTreeFirstInOrder()
 	if p != nil {
 		return p.(*stmtNode)
 	} else {
@@ -31,7 +31,7 @@ func stmtAvlTreeFirstInOrder() *stmtNode {
 
 func stmtAvlTreeLastInOrder() *stmtNode {
 
-	p := avl.AvlTreeLastInOrder(g.program)
+	p := g.program.AvlTreeLastInOrder()
 	if p != nil {
 		return p.(*stmtNode)
 	} else {
@@ -41,8 +41,7 @@ func stmtAvlTreeLastInOrder() *stmtNode {
 
 func stmtAvlTreeInsert(stmt *stmtNode, cmp avl.CmpFuncNode) {
 
-	p := avl.AvlTreeInsert(&g.program, &stmt.avl, stmt, cmp)
-	if p != nil {
+	if p := g.program.AvlTreeInsert(&stmt.avl, stmt, cmp); p != nil {
 		fatalError(fmt.Sprintf("Stmt %d already in tree???", stmt.stmtNo))
 	}
 
@@ -65,7 +64,7 @@ func stmtAvlTreeInsert(stmt *stmtNode, cmp avl.CmpFuncNode) {
 
 func stmtAvlTreeNextInOrder(stmt *stmtNode) *stmtNode {
 
-	p := avl.AvlTreeNextInOrder(&stmt.avl)
+	p := (&stmt.avl).AvlTreeNextInOrder()
 	if p != nil {
 		return p.(*stmtNode)
 	} else {
@@ -98,7 +97,7 @@ func stmtAvlTreeNextStmt(stmt *stmtNode) *stmtNode {
 
 func stmtAvlTreeLookup(key int16, cmp avl.CmpFuncKey) *stmtNode {
 
-	p := avl.AvlTreeLookup(g.program, key, cmp)
+	p := g.program.AvlTreeLookup(key, cmp)
 	if p != nil {
 		return p.(*stmtNode)
 	} else {
@@ -108,7 +107,7 @@ func stmtAvlTreeLookup(key int16, cmp avl.CmpFuncKey) *stmtNode {
 
 func stmtAvlTreeRemove(stmt *stmtNode) {
 
-	avl.AvlTreeRemove(&g.program, &stmt.avl)
+	g.program.AvlTreeRemove(&stmt.avl)
 
 	//
 	// If we just deleted the one and only END statement, zero out
