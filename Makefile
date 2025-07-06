@@ -23,3 +23,6 @@ clean:
 git:
 	rsync -a $(EXECUTABLE) $(DOCS) $(GO_FILES) Makefile \
 		go.mod go.sum $(GITPATH)
+
+lint:
+	golangci-lint run

@@ -2225,7 +2225,7 @@ func spawnUserFunction(stmt *stmtNode) any {
 	//
 	// Anything other than a primitive data type
 	// (float64, int16 or string) is some sort of
-	// fatal error that was raised, so call panic with it,
+	// fatal error that was raised.
 	// and let upstream handle it, else if nil, the goroutine
 	// will have printed anything useful, so crawlout, else
 	// return it to our caller
