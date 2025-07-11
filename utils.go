@@ -505,47 +505,50 @@ func openFileFull(filename string, iomode int, textMode bool) (*file, error) {
 	//
 
 	if finfo, err = os.Stat(filename); err != nil {
-		return nil, mapOSError(err)
-	} else if !finfo.Mode().IsRegular() {
-		return nil, errInvaliddevice
-	} else {
-		switch err {
-		default:
+		err = mapOSError(err)
+	}
+
+	switch err {
+	default:
+		return nil, err
+
+	//
+	// If the file exists, try to determine if it is a BASIC-PLUS
+	// record oriented file.  Sticky bit means it is.  Otherwise,
+	// a zero-length file is set as emptyFile until we know better
+	//
+
+	case nil:
+		if !finfo.Mode().IsRegular() {
+			return nil, errInvaliddevice
+		}
+
+		if (finfo.Mode() & fs.ModeSticky) != 0 {
+
+			//
+			// Disallow opening a record file as a text file
+			//
+
+			if textMode {
+				runtimeError(EPROTECTIONVIOLATION)
+			}
+
+			of.fileType = recordFile
+		} else if finfo.Size() == 0 {
+			of.fileType = emptyFile
+		} else {
+			of.fileType = printFile
+		}
+
+	case errFilenotfound:
+
+		// If errFilenotfound and iomode does not allow writing, bail!
+
+		if (iomode & IOWRITE) == 0 {
 			return nil, err
-
-		//
-		// If the file exists, try to determine if it is a BASIC-PLUS
-		// record oriented file.  Sticky bit means it is.  Otherwise,
-		// a zero-length file is set as emptyFile until we know better
-		//
-
-		case nil:
-			if (finfo.Mode() & fs.ModeSticky) != 0 {
-
-				//
-				// Disallow opening a record file as a text file
-				//
-
-				if textMode {
-					runtimeError(EPROTECTIONVIOLATION)
-				}
-
-				of.fileType = recordFile
-			} else if finfo.Size() == 0 {
-				of.fileType = emptyFile
-			} else {
-				of.fileType = printFile
-			}
-
-		case errFilenotfound:
-
-			// If errFilenotfound and iomode does not allow writing, bail!
-
-			if (iomode & IOWRITE) == 0 {
-				return nil, err
-			} else {
-				of.fileType = emptyFile
-			}
+		} else {
+			of.fileType = emptyFile
+			err = nil
 		}
 	}
 
