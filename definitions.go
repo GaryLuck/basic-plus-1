@@ -184,12 +184,12 @@ type faultInfo struct {
 }
 
 type tokenNode struct {
-	next      *tokenNode
-	operands  []*tokenNode
-	tokenData any
 	token     int
 	tlocs     uint16
 	tloce     uint16
+	tokenData any
+	operands  []*tokenNode
+	next      *tokenNode
 }
 
 type stmtNode struct {

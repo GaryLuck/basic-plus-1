@@ -142,7 +142,7 @@ func setupWindow() {
 func initParser() {
 
 	yyDebug = 1
-	yyErrorVerbose = true
+	yyErrorVerbose = false
 
 	initSymbolTable()
 }

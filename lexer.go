@@ -196,16 +196,7 @@ func errorLocFull(l string, e string, doPanic bool, yylloc ...*yySymLoc) {
 }
 
 //
-// Another ugly hack.  BASIC-PLUS allows '!' (COMMENT) as well as
-// the REM(ark) verb.  The ugliness arises because '!' can be a verb
-// itself (e.g. '100 ! this is a comment'), as well as a directive to
-// ignore the rest of the line (ala the "C" '//' syntax).  We can't
-// just ignore everything up to the NL, since '100 ! blah blah blah\n'
-// would be equivalent to '100\n', which is a directive to delete statement
-// 100 (if it exists), and at best, would not result in a statement with
-// statement number 100 being added to the program. If the comment character
-// follows an initial statement number (which must be the first token on
-// the current line), return a COMMENT token
+// Save the input token for later
 //
 
 func saveToken(yylex *Lexer, tok Lval) {
@@ -313,14 +304,25 @@ func myScanner(yylex *Lexer) {
 		}
 
 		//
-		// If this is COMMA or SEMI, save the trailing version, so that
-		// if the next token is EOL, COLON or ELSE, we can send it up
-		// first, otherwise nuke any prevToken
+		// If this is COMMA or SEMI, save it in prevToken, so it can
+		// be morphed into the trailing version, if the next token is
+		// EOL, COLON or ELSE,  If we then see a saved token, we can
+		// append to the list of tokens, otherwise nuke any prevToken
+		// NB: we do NOT do this juju if this is a SEMI and prevToken
+		// was non-zero, as this silently allows 'print 1;;;;' or
+		// similar nonsense.  We also have to not do any of this if
+		// the next token is COMMA or SEMI lest we swallow that token
 		//
 
 		if t.token == COMMA || t.token == SEMI {
-			prevToken = Lval{token: t.token}
-			prevToken.lval.symLoc = getTokenLoc(&s)
+			if prevToken.token != 0 {
+				tok := Lval{token: BADTOKEN}
+				tok.lval.symLoc = getTokenLoc(&s)
+				saveToken(yylex, tok)
+			} else {
+				prevToken = Lval{token: t.token}
+				prevToken.lval.symLoc = getTokenLoc(&s)
+			}
 			continue
 		} else if t.token == ELSE || t.token == COLON {
 			if prevToken.token != 0 {
@@ -685,7 +687,7 @@ func getLexeme(s *scanner.Scanner) (Lval, bool) {
 		// which causes the print cursor to advance one field.
 		// It's awful trying to get yacc to accept that, so since
 		// we already peeked at the next token anyway, if it's also
-		// a comma, discard both commas, and return a fake token DCOMMA
+		// a comma, discard both commas, and return token DCOMMA
 		//
 
 	case ',':

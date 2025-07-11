@@ -165,6 +165,7 @@ var parsingUneg bool
 %token APPROX
 %token BADFILENAME
 %token BADFUNCNAME
+%token BADTOKEN
 %token BADVARIABLE
 %token CHAR
 %token COLON
