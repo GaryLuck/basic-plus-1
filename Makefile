@@ -1,6 +1,6 @@
 
 GO_FILES = basic.go definitions.go errors.go execute.go help.go lexer.go \
-	prtu.go stmt.go symtab.go utils.go parser.y
+	prtu.go stmt.go symtab.go utils.go parser.y avl.go
 EXECUTABLE = basic-plus
 DOCS = ./docs
 LDFLAGS = "-X 'main.buildTimestampStr=`date`'"
