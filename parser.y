@@ -1,4 +1,3 @@
-
 %{
 
 package main
@@ -36,6 +35,7 @@ var parsingUneg bool
 
 %token ABS
 %token AS
+%token ASSERT
 %token ASCII
 %token AND
 %token ATN
@@ -44,6 +44,7 @@ var parsingUneg bool
 %token CHRS
 %token CLOSE
 %token CLUSTERSIZE
+%token CON
 %token CONFIG
 %token CONT
 %token COS
@@ -57,6 +58,7 @@ var parsingUneg bool
 %token DEF
 %token DELETE
 %token DENORM
+%token DET
 %token DIM
 %token DUMP
 %token EDIT
@@ -67,7 +69,6 @@ var parsingUneg bool
 %token ERL
 %token ERR
 %token ERROR
-%token EXEC
 %token EXP
 %token FIELD
 %token FILE
@@ -76,18 +77,16 @@ var parsingUneg bool
 %token FLOAT
 %token FOR
 %token FNEND
-%token FNFVAR
-%token FNIVAR
-%token FNSVAR
-%token FVAR
 %token GET
 %token GOSUB
 %token GOTO
 %token HELP
+%token IDN
 %token IF
 %token IMP
 %token INPUT
 %token INSTR
+%token INV
 %token INT
 %token KILL
 %token LEN
@@ -99,11 +98,11 @@ var parsingUneg bool
 %token LOG
 %token LOG10
 %token LSET
+%token MAT
 %token MID
 %token MODE
 %token NEXT
 %token NEW
-%token NODES
 %token NOT
 %token NUMS
 %token OLD
@@ -113,7 +112,6 @@ var parsingUneg bool
 %token OUTPUT
 %token PI
 %token POS
-%token POUND
 %token PRINT
 %token PUT
 %token READ
@@ -149,6 +147,7 @@ var parsingUneg bool
 %token TIMES
 %token TO
 %token TRACE
+%token TRN
 %token UNTIL
 %token USING
 %token VAL
@@ -156,6 +155,7 @@ var parsingUneg bool
 %token WHILE
 %token WAIT
 %token XOR
+%token ZER
 
 //
 // The following section is tokens that are not to be entered into the
@@ -176,8 +176,13 @@ var parsingUneg bool
 %token DOLLAR
 %token EINTEGER
 %token EQ
+%token EXEC
 %token FIELDELEMENT
 %token FILLCHAR
+%token FNFVAR
+%token FNIVAR
+%token FNSVAR
+%token FVAR
 %token GT
 %token GE
 %token INTEGER
@@ -196,6 +201,7 @@ var parsingUneg bool
 %token ONGOSUB
 %token ONGOTO
 %token PLUS
+%token POUND
 %token POW
 %token RPAR
 %token SCALL
@@ -292,6 +298,9 @@ line:
             default:
                  unexpectedTokenError(sp.token)
 
+            case ASSERT:
+                 executeAssert()
+
             case BYE:
                  executeBye()
 
@@ -337,6 +346,9 @@ line:
                     executeList(tp[0], true)
                  }
 
+            case MAT:
+                 executeMat(tp)
+
             case NEW:
                  executeNew(tp[0])
 
@@ -363,13 +375,7 @@ line:
                  executeSave(tp[0])
 
             case STATS:
-                 if g.printStats {
-                    myPrintln("Disabling statistics")
-                    g.printStats = false
-                 } else {
-                    myPrintln("Enabling statistics")
-                    g.printStats = true
-                 }
+                 executeStats()
 
             case TRACE:
                  executeTrace(tp[0])            
@@ -504,6 +510,19 @@ simple_var:
             $<tnodeVal>$ = $<tnodeVal>1
         }
 
+simple_nvar_list:
+        simple_nvar COMMA simple_nvar_list
+        {
+            tp1 := $<tnodeVal>1
+            tp1.next = $<tnodeVal>3
+            $<tnodeVal>$ = tp1
+        }
+|
+        simple_nvar
+        {
+            $<tnodeVal>$ = $<tnodeVal>1
+        }
+                            
 simple_nvar:
         fvar
         {
@@ -521,6 +540,13 @@ simple_nvar:
         }
 
 statement:
+        ASSERT
+        {
+            requireImmediateStatement(ASSERT, &@1)
+
+            $<snodeVal>$ = makeStmtNode(ASSERT)
+        }
+|
         BYE
         {
             requireImmediateStatement(BYE, &@1)
@@ -937,6 +963,11 @@ statement:
             $<snodeVal>$ = makeStmtNode(LISTNH, $<tnodeVal>2)
         }
 |
+        MAT mat_ops
+        {
+            $<snodeVal>$ = makeStmtNode(MAT, $<tnodeVal>2)
+        }
+|
         NEW filename
         {
             requireImmediateStatement(NEW, &@1)
@@ -1150,6 +1181,84 @@ statement:
             $<snodeVal>$ = $<snodeVal>1
         }
 
+mat_ops:
+       simple_nvar EQ simple_nvar
+       {
+            $<tnodeVal>$ = makeTokenNode(EQ, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       simple_nvar EQ mat_binops
+       {
+            $<tnodeVal>$ = makeTokenNode(EQ, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       simple_nvar EQ mat_funcs
+       {
+            $<tnodeVal>$ = makeTokenNode(EQ, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       PRINT simple_nvar opt_trailing_cs
+       {
+            $<tnodeVal>$ = makeTokenNode(PRINT, $<tnodeVal>2, $<tnodeVal>3)
+       }
+|
+       INPUT simple_nvar_list
+       {
+            $<tnodeVal>$ = makeTokenNode(INPUT, $<tnodeVal>2)
+       }
+|
+       READ simple_nvar_list
+       {
+            $<tnodeVal>$ = makeTokenNode(READ, $<tnodeVal>2)
+       }
+
+mat_binops:
+       simple_nvar PLUS simple_nvar
+       {
+            $<tnodeVal>$ = makeTokenNode(PLUS, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       simple_nvar MINUS simple_nvar
+       {
+            $<tnodeVal>$ = makeTokenNode(MINUS, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       simple_nvar STAR simple_nvar
+       {
+            $<tnodeVal>$ = makeTokenNode(STAR, $<tnodeVal>1, $<tnodeVal>3)
+       }
+|
+       LPAR rpn_expr RPAR STAR simple_nvar
+       {
+            $<tnodeVal>$ = makeTokenNode(STAR, $<tnodeVal>2, $<tnodeVal>5)
+       }
+
+mat_funcs:
+       CON
+       {
+            $<tnodeVal>$ = makeTokenNode(CON)
+       }
+|
+       IDN
+       {
+            $<tnodeVal>$ = makeTokenNode(IDN)
+       }
+|
+       INV LPAR simple_var RPAR
+       {
+            $<tnodeVal>$ = makeTokenNode(INV, $<tnodeVal>3)
+       }
+|
+       TRN LPAR simple_var RPAR
+       {
+            $<tnodeVal>$ = makeTokenNode(TRN, $<tnodeVal>3)
+       }
+|
+       ZER
+       {
+            $<tnodeVal>$ = makeTokenNode(ZER)
+       }
+
 set_vars_list:
         string_var COMMA set_vars_list
         {
@@ -1333,6 +1442,11 @@ help_targets:
         EDIT
         {
             $<tnodeVal>$ = makeTokenNode(EDIT)
+        }
+|
+        KILL
+        {
+            $<tnodeVal>$ = makeTokenNode(KILL)
         }
 |
         LIST
@@ -1970,7 +2084,7 @@ read_list:
             tp1 := $<tnodeVal>1
             tp1.next = $<tnodeVal>3
 
-            $<tnodeVal>$ = $<tnodeVal>1
+            $<tnodeVal>$ = tp1
         }
 |
         any_var
@@ -2423,6 +2537,11 @@ basic_bif:
         {
             $<tnodeVal>$ = makeTokenNode(DATES, $<tnodeVal>2)
         }
+|
+       DET
+       {
+            $<tnodeVal>$ = makeTokenNode(DET)
+       }
 |
         ERL
         {

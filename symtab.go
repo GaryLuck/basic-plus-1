@@ -104,8 +104,8 @@ func generateVarToken(token any) any {
 }
 
 //
-// This function takes a scalar variable name and returns its
-// current value
+// This function takes a variable name and and options subscript(s)
+// and returns its current value
 //
 
 func lookupSymbolValue(token any, subs ...int16) any {
@@ -130,6 +130,11 @@ func lookupSymbolValue(token any, subs ...int16) any {
 	}
 }
 
+//
+// Lookup a symbol, and if it doesn't exists, create it with optional
+// dimensionality
+//
+
 func lookupSymbolRef(token any, subs ...int16) (ret *symtabNode) {
 
 	var dims []int16
@@ -148,7 +153,7 @@ func lookupSymbolRef(token any, subs ...int16) (ret *symtabNode) {
 		runtimeError("Function parameters may not be modified")
 	}
 
-	sym := lookupSymbol(token, false, subs...)
+	sym := lookupSymbol(token, len(subs))
 	if sym == nil {
 		switch len(subs) {
 		case 2:
@@ -163,21 +168,56 @@ func lookupSymbolRef(token any, subs ...int16) (ret *symtabNode) {
 	return sym
 }
 
-func lookupSymbol(token any, dimStmt bool,
-	adims ...int16) *symtabNode {
+//
+// Lookup a 1 or 2 dimensional symbol, throwing an error if it
+// does not exist (should have been created by a DIM statement),
+// optionally enforcing squareness or 2d-ness
+//
+
+func lookupMatrix(token any, mtype int) *symtabNode {
+
+	var sym *symtabNode
+
+	if sym = lookupSymbol(token, -1); sym == nil {
+		runtimeError("Matrix not dimensioned")
+	}
+
+	switch mtype {
+	case LOOKUPMATRIX2D:
+		runtimeCheck(len(sym.dims) == 2, "Matrix must be two dimensional")
+
+	case LOOKUPMATRIXSQUARE:
+		runtimeCheck(len(sym.dims) == 2 && sym.dims[0] == sym.dims[1],
+			"Matrix must be square")
+	}
+
+	return sym
+}
+
+//
+// Lookup a symbol, optionally checking for an illegal redimensioning
+//
+
+func lookupSymbol(token any, ndims int) *symtabNode {
 
 	var sym *symtabNode
 	var mapIdx int
 
 	_, name := decodeVarToken(generateVarToken(token))
 
-	if len(adims) != 0 {
+	if ndims != 0 {
 		mapIdx = 1
 	}
 
 	sym = g.symtabMap[mapIdx][name]
 
-	runtimeCheck(dimStmt || sym == nil || len(adims) == len(sym.dims),
+	//
+	// If the symbol is not present, or we just care about whether
+	// it exists or not, 'ndims' will be -1, otherwise ensure that
+	// the caller is not trying to change the dimensionality
+	//
+
+	runtimeCheck(sym == nil || ndims <= 0 || ndims == len(sym.dims),
 		fmt.Sprintf("Attempt to change array dimensionality of %s", name))
 
 	return sym
@@ -274,7 +314,7 @@ func processDimStmt(stmt *stmtNode) {
 		// Disallow duplicate DIM statements
 		//
 
-		if lookupSymbol(op, true, dims...) != nil {
+		if lookupSymbol(op, -1) != nil {
 			runtimeErrorStmt("Duplicate DIM statement", stmt)
 		} else {
 			_ = createSymbol(op, dims...)

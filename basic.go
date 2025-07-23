@@ -178,6 +178,9 @@ func initMaps() {
 
 	for tok := yyFirsttok; tok <= yyLasttok; tok++ {
 		lstr := strings.ToLower(getTokenName(tok))
+		//		if len(lstr) == 1 {
+		fmt.Printf("token %q is a keyword???\n", lstr)
+		//		}
 		keywordMap[lstr] = tok
 	}
 
@@ -263,7 +266,6 @@ func decodePanic(e any) {
 	var panicCount int
 
 	switch e := e.(type) {
-	//	switch e.(type) {
 	default:
 		//
 		// We got some kind of internally generated GO panic, so we have
@@ -423,20 +425,25 @@ func floatValuesApproxEqual(f1, f2 float64) bool {
 
 func checkFloatingStatus(state *procState) {
 
+	fperror := false
 	val := rpnPopFloat(&state.stack)
 
 	if math.IsNaN(val) || math.IsInf(val, 0) {
-		arithFault(EFLOATINGERROR, state, float64(0.0))
+		fperror = true
 	} else {
 		//
 		// Reject denorm values?
 		//
 		exp := (math.Float64bits(val) & 0x7ff0000000000000) >> 52
 		if val != 0 && exp == 0 && !g.denorm {
-			arithFault(EFLOATINGERROR, state, float64(0.0))
+			fperror = true
 		} else {
 			rpnPush(&state.stack, val)
 		}
+	}
+
+	if fperror {
+		arithFault(EFLOATINGERROR, state, float64(0.0))
 	}
 }
 
@@ -483,7 +490,7 @@ func printErrorLocStmt(stmt *stmtNode, msg string) {
 
 func basicAssert(chk bool, msg string) {
 
-	if !chk {
+	if g.checkAsserts && !chk {
 		fatalError(msg)
 	}
 }
@@ -630,7 +637,7 @@ func makeTokenNode(token int, operands ...any) *tokenNode {
 
 	switch len(operands) {
 	case 0:
-		//		return node
+		// NOP
 
 	case 1:
 		switch operands[0].(type) {
@@ -2491,4 +2498,15 @@ func clearScreen() {
 	for i := 0; i < g.window.rows; i++ {
 		fmt.Println()
 	}
+}
+
+func readDataItem() any {
+
+	runtimeCheck(r.dataIndex < len(r.dataList), EOUTOFDATA)
+
+	dataItem := r.dataList[r.dataIndex]
+
+	r.dataIndex++
+
+	return dataItem
 }

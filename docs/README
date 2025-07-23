@@ -285,3 +285,10 @@ Add a debug switch to print interpreter nodes.
 
 Dynamically modify number of print zones when window is resize.
 
+The MAT INV function will not support integer matrices, since testing
+with SIMH using a RSTS-11 virtual disk shows grossly incorrect results.
+I suspect this is due to divisions which would be truncated.
+
+All MAT functionality now present and working, other than matrix
+inversion (and DET, since it is set as a side-effect of inversion)
+

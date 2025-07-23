@@ -139,7 +139,7 @@ func errorLocFull(l string, e string, doPanic bool, yylloc ...*yySymLoc) {
 	var tLoc yySymLoc
 
 	if e != "" {
-		fmt.Println()
+		resetPrint(false)
 	}
 
 	switch len(yylloc) {

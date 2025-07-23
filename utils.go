@@ -197,18 +197,6 @@ func trimWhitespace(s string) string {
 	return string(dst)
 }
 
-func myPrintln(l ...any) {
-
-	resetPrint(false)
-
-	fmt.Println(l...)
-}
-
-func mySprintf(f string, args ...any) string {
-
-	return fmt.Sprintf(f, args...)
-}
-
 func resetPrint(forceNL bool) {
 
 	printNL := forceNL
@@ -548,7 +536,6 @@ func openFileFull(filename string, iomode int, textMode bool) (*file, error) {
 			return nil, err
 		} else {
 			of.fileType = emptyFile
-			err = nil
 		}
 	}
 
@@ -880,6 +867,27 @@ func executeDenorm() {
 	g.denorm = !g.denorm
 
 	printDenormState()
+}
+
+func executeAssert() {
+	if g.checkAsserts {
+		fmt.Println("Disabling assertions")
+		g.checkAsserts = false
+	} else {
+		fmt.Println("Enabling assertions")
+		g.checkAsserts = true
+	}
+}
+
+func executeStats() {
+
+	if g.printStats {
+		fmt.Println("Disabling statistics")
+		g.printStats = false
+	} else {
+		fmt.Println("Enabling statistics")
+		g.printStats = true
+	}
 }
 
 //

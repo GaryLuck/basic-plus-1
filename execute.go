@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	//	"github.com/goforj/godump"
 	"math"
 	"math/rand"
 	"runtime"
@@ -20,7 +21,7 @@ func executeBye() {
 
 func executeClose(args []*tokenNode) {
 
-	runtimeCheck(len(args) > 0, "CLOSE botch")
+	basicAssert(len(args) > 0, "CLOSE botch")
 
 	for i := 0; i < len(args); i++ {
 		filenum := anyToInt(evaluateRpnExpr(args[i], false))
@@ -795,6 +796,9 @@ func evaluateRpnExprInternal(state *procState, lhs bool) any {
 
 				rpnPushString(stackp, t.Format("02-Jan-2006"))
 
+			case DET:
+				rpnPush(stackp, r.det)
+
 			case EQ:
 				vl, vr := rpnPopTwoNumbers(stackp)
 				if isInt(vl) {
@@ -1508,6 +1512,9 @@ func executeStmtInternal(state *procState, arg any) (*procState, any) {
 	case LSET:
 		executeSet(curStmt.operands, false)
 
+	case MAT:
+		executeMat(curStmt.operands)
+
 	case NEXT:
 
 		//
@@ -1821,11 +1828,40 @@ func executeRandomize() {
 
 func executeStop() {
 
-	msg := mySprintf("STOP at line %s", decodeStmtNoString(r.curStmt))
+	msg := fmt.Sprintf("STOP at line %s", decodeStmtNoString(r.curStmt))
 
 	r.nextStmt = stmtAvlTreeNextStmt(r.curStmt)
 
 	exitToPrompt(msg)
+}
+
+func executeMat(args []*tokenNode) {
+
+	basicAssert(len(args) == 1, "MAT botch")
+
+	opcode := args[0].token
+	ops := args[0].operands
+	tops := make([]*tokenNode, 1)
+
+	switch opcode {
+	default:
+		unexpectedTokenError(opcode)
+
+	case EQ:
+		//	godump.Dump(args)
+		matAssign(ops)
+
+	case INPUT:
+		fallthrough
+	case READ:
+		for tp := ops[0]; tp != nil; tp = tp.next {
+			tops[0] = tp
+			matOperate(opcode, tops)
+		}
+
+	case PRINT:
+		matOperate(opcode, ops)
+	}
 }
 
 func executeChange(curStmt *stmtNode) {
@@ -1844,7 +1880,7 @@ func executeChange(curStmt *stmtNode) {
 	op1 := curStmt.operands[1]
 
 	if isString(op0) && isNumeric(op1) {
-		sym := lookupSymbol(op1, false, dims...)
+		sym := lookupSymbolRef(op1, 1)
 		if sym == nil {
 			dims[0] = maxImplicitSubscript
 			sym = createSymbol(op1, dims...)
@@ -1880,7 +1916,7 @@ func executeChange(curStmt *stmtNode) {
 
 		}
 	} else if isNumeric(op0) && isString(op1) {
-		lsym := lookupSymbol(op0, false, dims...)
+		lsym := lookupSymbolRef(op0, dims...)
 		if lsym == nil {
 			dims[0] = maxImplicitSubscript
 			lsym = createSymbol(op0, dims...)
@@ -2098,6 +2134,7 @@ func executeNext(curStmt *stmtNode) *stmtNode {
 	}
 
 	runtimeError("NEXT statement without matching FOR")
+
 	panic(nil) // avoid compiler complaint
 }
 
@@ -2105,12 +2142,7 @@ func executeRead(curStmt *stmtNode) {
 
 	for op := curStmt.operands[0]; op != nil; op = op.next {
 
-		runtimeCheck(r.dataIndex < len(r.dataList), EOUTOFDATA)
-
-		dataItem := r.dataList[r.dataIndex]
-
-		r.dataIndex++
-
+		dataItem := readDataItem()
 		sym := lookupSymbolRef(op)
 
 		//
@@ -2171,7 +2203,7 @@ func executeInput(args []*tokenNode) {
 	// none of said input variables is paired with a prompt string
 	//
 
-	runtimeCheck(len(args) == 3, "INPUT botch")
+	basicAssert(len(args) == 3, "INPUT botch")
 
 	if args[1] == nil {
 		ioch = 0
@@ -2382,7 +2414,7 @@ func executePrint(args []*tokenNode) {
 	var tokList []prtuToken
 	var ioch int
 
-	runtimeCheck(len(args) == 3, "PRINT botch")
+	basicAssert(len(args) == 3, "PRINT botch")
 
 	if args[0] == nil && args[1] == nil && args[2] == nil {
 		fmt.Println()
@@ -2569,7 +2601,7 @@ func executeIf(curStmt *stmtNode) *procState {
 
 func executeKill(args []*tokenNode) {
 
-	runtimeCheck(len(args) == 1, "KILL botch")
+	basicAssert(len(args) == 1, "KILL botch")
 
 	filename := evaluateStringExpr(args[0])
 
@@ -2596,7 +2628,7 @@ func executeKill(args []*tokenNode) {
 
 func executeSet(args []*tokenNode, leftPad bool) {
 
-	runtimeCheck(len(args) == 2, "SET botch")
+	basicAssert(len(args) == 2, "SET botch")
 
 	for tp := args[0]; tp != nil; tp = tp.next {
 		lval := evaluateRpnExpr(tp, true).(lhsRetVal)
@@ -2682,7 +2714,7 @@ func executeOpen(args []*tokenNode) {
 	var basFileOk bool
 	var fp *file
 
-	runtimeCheck(len(args) == 3, "OPEN botch")
+	basicAssert(len(args) == 3, "OPEN botch")
 
 	filename := evaluateStringExpr(args[0])
 

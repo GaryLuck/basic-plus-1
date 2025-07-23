@@ -51,7 +51,7 @@ const blockSize = 512
 
 // FIX THESE AT SOME POINT
 const yyFirsttok = ABS
-const yyLasttok = XOR
+const yyLasttok = ZER
 
 const colorRedSeq = "\033[31m"
 const colorResetSeq = "\033[0m"
@@ -70,6 +70,12 @@ const minExpArg = -745
 const maxExpArg = 709
 
 const ctrlZ = rune(26)
+
+const (
+	LOOKUPMATRIXANY = iota
+	LOOKUPMATRIX2D
+	LOOKUPMATRIXSQUARE
+)
 
 //
 // I/O mode definitions
@@ -293,6 +299,7 @@ type run struct {
 	openFiles     map[int]*file
 	fieldMap      map[int]*field
 	fip           *faultInfo
+	det           float64
 	dataIndex     int
 	onErrorStmtNo int16
 	level         int16
@@ -338,6 +345,7 @@ var g struct {
 	modified        bool
 	running         bool
 	printStats      bool
+	checkAsserts    bool
 	traceStack      bool
 	traceExec       bool
 	traceVars       bool
@@ -399,8 +407,8 @@ var stringOps = []int{CONCAT, CHRS, CVTFS, CVTIS, DATES, FNSVAR,
 	TAB, TIMES}
 
 var numericOps = []int{ABS, AND, APPROX, ASCII, ATN, COS, CVTSF, CVTSI,
-	EQ, EQV, ERL, ERR, EXP, FIX, FLOAT, FNFVAR, FNIVAR, FVAR, GE, GT,
-	IMP, INT, INSTR, INTEGER, IVAR, LE, LEN, LOG, LOG10, LT, MINUS, OR,
-	NCALL, NE, NOT, NRPN, PI, POS, PLUS, POW, RND, SGN, SIN, SLASH, SQR,
-	STAR, STREQ, STRGE, STRGT, STRLE, STRLT, STRNE, SWAPI, TAN, TIME,
-	UNEG, VAL, XOR}
+	DET, EQ, EQV, ERL, ERR, EXP, FIX, FLOAT, FNFVAR, FNIVAR, FVAR, GE,
+	GT, IMP, INT, INSTR, INTEGER, IVAR, LE, LEN, LOG, LOG10, LT, MINUS,
+	OR, NCALL, NE, NOT, NRPN, PI, POS, PLUS, POW, RND, SGN, SIN, SLASH,
+	SQR, STAR, STREQ, STRGE, STRGT, STRLE, STRLT, STRNE, SWAPI, TAN,
+	TIME, UNEG, VAL, XOR, ZER}

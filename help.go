@@ -7,12 +7,14 @@ import (
 func executeHelp(targ *tokenNode) {
 
 	if targ == nil {
+		fmt.Println("assert")
 		fmt.Println("bye")
 		fmt.Println("config")
 		fmt.Println("cont")
 		fmt.Println("delete")
 		fmt.Println("denorm")
 		fmt.Println("edit")
+		fmt.Println("kill")
 		fmt.Println("list")
 		fmt.Println("listnh")
 		fmt.Println("new")
@@ -29,6 +31,9 @@ func executeHelp(targ *tokenNode) {
 	}
 
 	switch targ.token {
+	case ASSERT:
+		fmt.Println("Toggle interpreter assertions")
+
 	case BYE:
 		fmt.Println("Exit from BASIC-PLUS")
 
@@ -50,6 +55,9 @@ func executeHelp(targ *tokenNode) {
 	case EDIT:
 		fmt.Println("Invoke the editor defined by the environment")
 		fmt.Println("variable EDITOR on the current (saved) program")
+
+	case KILL:
+		fmt.Println("Delete a quoted file")
 
 	case LIST:
 		fmt.Println("List one or more statements/ranges of statements" +
