@@ -1849,18 +1849,16 @@ func executeMat(args []*tokenNode) {
 
 	case EQ:
 		//	godump.Dump(args)
-		matAssign(ops)
 
 	case INPUT:
 		fallthrough
 	case READ:
 		for tp := ops[0]; tp != nil; tp = tp.next {
 			tops[0] = tp
-			matOperate(opcode, tops)
+
 		}
 
 	case PRINT:
-		matOperate(opcode, ops)
 	}
 }
 
